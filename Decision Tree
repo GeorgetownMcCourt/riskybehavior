@@ -1,0 +1,132 @@
+##Decision tree##
+
+
+
+library(rpart)
+library(rpart.plot)
+library(ggplot2)
+library(gridExtra)
+library(plotROC)
+
+#Meanf1 function
+  meanf1 <- function(actual, predicted){
+    #Mean F1 score function
+    #actual = a vector of actual labels
+    #predicted = predicted labels
+    
+    classes <- unique(actual)
+    results <- data.frame()
+    for(k in classes){
+      results <- rbind(results, 
+                       data.frame(class.name = k,
+                                  weight = sum(actual == k)/length(actual),
+                                  precision = sum(predicted == k & actual == k)/sum(predicted == k), 
+                                  recall = sum(predicted == k & actual == k)/sum(actual == k)))
+    }
+    results$score <- results$weight * 2 * (results$precision * results$recall) / (results$precision + results$recall) 
+    return(sum(results$score))
+  }
+  
+
+
+#Train
+
+#default (cp = 0.01)
+fit <- rpart(grades2 ~ ., method = "class", data = dftrain)
+
+summary(fit)
+
+printcp(fit)
+
+#cp = 0
+fit.0 <- rpart(grades2 ~ ., method = "class", data = dftrain, cp = 0)
+
+summary(fit.0)
+
+printcp(fit.0)
+
+#Calculate optimal
+
+#Refit with optimal
+fit.opt <- rpart(grades2 ~ ., method = "class", data = dftrain, cp = 0.01143089)
+
+#Determine which variable had the greatest influence
+fit.opt$variable.importance
+
+
+#Predict values for train 
+predict.opt.train <- predict(fit.opt, dftrain, type='class')
+predict.0.train <- predict(fit.0, dftrain, type='class')
+predict.train <- predict(fit, dftrain, type='class')
+
+input.train <- rbind(data.frame(model = "optimal", d = dftrain$grades2,  m = predict.opt.train), 
+                     data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train),
+                     data.frame(model = "default", d =  dftrain$grades2,  m = predict.train))
+
+input.trainopt <- rbind(data.frame(model = "optimal", d = dftrain$grades2, m = predict.opt.train))
+
+input.train0 <-rbind( data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train))
+
+input.traindef <-rbind( data.frame(model = "default", d = dftrain$grades2,  m = predict.train))
+
+
+
+#Predict values for test 
+predict.opt.test <- predict(fit.opt, dftest, type='class')
+predict.0.test <- predict(fit.0, dftest, type='class')
+predict.test <- predict(fit, dftest, type='class')
+
+input.test <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test), 
+                    data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test),
+                    data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+input.testopt <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test))
+
+input.test0 <-rbind(data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test))
+
+input.testdef <-rbind(data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+
+#Predict values for val
+predict.opt.val <- predict(fit.opt, dfval, type='class')
+predict.0.val <- predict(fit.0, dfval, type='class')
+predict.val <- predict(fit, dfval, type='class')
+
+input.val <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val), 
+                   data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val),
+                   data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+input.valopt <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val))
+
+input.val0 <-rbind(data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val))
+
+input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+
+
+#meanf1
+meanf1(input.train$d, input.train$m)
+
+meanf1(input.train0$d, input.train0$m) 
+meanf1(input.traindef$d, input.traindef$m)
+meanf1(input.trainopt$d, input.trainopt$m) 
+
+meanf1(input.test$d, input.test$m) 
+
+meanf1(input.testopt$d, input.testopt$m) 
+meanf1(input.test0$d, input.test0$m) 
+meanf1(input.testdef$d, input.testdef$m) 
+
+
+meanf1(input.val$d, input.val$m) 
+
+meanf1(input.valopt$d, input.valopt$m) 
+meanf1(input.val0$d, input.val0$m) 
+meanf1(input.valdef$d, input.valdef$m) 
+
+
+test$grades2 <- predict(fit.0, test, type='class')
+id <- test$id
+grades2 <- test$grades2
+
+myPredictions <- cbind.data.frame(id, grades2)
