@@ -1,0 +1,24 @@
+###Partition###
+
+
+
+
+library(dplyr)
+
+dftrain <- df[sample(nrow(df), 
+                     size = round(0.7*nrow(df)),
+                     replace = F),]
+
+dftest <- anti_join(df, dftrain, by = "id")
+
+dfval <- dftest[sample(nrow(dftest), 
+                       size = round(0.5*nrow(dftest)),
+                       replace = F),]
+
+dftest <- anti_join(dftest, dfval, by = "id")
+
+set.seed(100)
+rand <- runif(nrow(df2))
+train <- df2[rand > 0.3,]
+validate <- df2[rand > 0.15 & rand <= 0.3,]
+test <- df2[rand <= 0.15,]
