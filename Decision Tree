@@ -32,14 +32,16 @@ library(plotROC)
 #Train
 
 #default (cp = 0.01)
-fit <- rpart(grades2 ~ ., method = "class", data = dftrain)
+fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
 
 summary(fit)
 
 printcp(fit)
 
+fit$variable.importance
+
 #cp = 0
-fit.0 <- rpart(grades2 ~ ., method = "class", data = dftrain, cp = 0)
+fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
 
 summary(fit.0)
 
@@ -48,7 +50,7 @@ printcp(fit.0)
 #Calculate optimal
 
 #Refit with optimal
-fit.opt <- rpart(grades2 ~ ., method = "class", data = dftrain, cp = 0.01143089)
+fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
 
 #Determine which variable had the greatest influence
 fit.opt$variable.importance
@@ -104,43 +106,14 @@ input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predi
 
 
 
-#meanf1
-meanf1(input.train$d, input.train$m)
+#meanf1 
 
-meanf1(input.train0$d, input.train0$m) 
-meanf1(input.traindef$d, input.traindef$m)
-meanf1(input.trainopt$d, input.trainopt$m) 
+#FYI meanf1 is w/o  NaNs, but all are wrongly giving 1
 
-meanf1(input.test$d, input.test$m) 
+meanf1(is.nan(input.val$d), is.nan(input.val$m))
+meanf1(is.nan(input.test$d), is.nan(input.test$m))
+meanf1(is.nan(input.train$d), is.nan(input.train$m))
 
-meanf1(input.testopt$d, input.testopt$m) 
-meanf1(input.test0$d, input.test0$m) 
-meanf1(input.testdef$d, input.testdef$m) 
-
-
-meanf1(input.val$d, input.val$m) 
-
-meanf1(input.valopt$d, input.valopt$m) 
-meanf1(input.val0$d, input.val0$m) 
-meanf1(input.valdef$d, input.valdef$m) 
-
-#or
-
-#AUC
-
-roc.test <- ggplot(input.test, aes(d = d, model = model, m = m, colour = model)) + 
-  geom_roc(show.legend = TRUE) + style_roc()  + ggtitle("Test")
-roc.train <- ggplot(input.train, aes(d = d, model = model, m = m, colour = model)) + 
-  geom_roc(show.legend = TRUE) + style_roc()  +ggtitle("Train")
-
-calc_auc(roc.test)
-calc_auc(roc.train)
-
-
-
-
-test$grades2 <- predict(fit.0, test, type='class')
-id <- test$id
-grades2 <- test$grades2
-
-myPredictions <- cbind.data.frame(id, grades2)
+meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))
+meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))
+meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
