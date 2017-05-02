@@ -1,0 +1,24 @@
+library(MASS)
+m1<- polr(factor(grades2) ~ schoolaltercation + schoolweapon + outsideweapon , data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+View(myPredictions)
+meanf1 <- function(actual, predicted){
+  #Mean F1 score function
+  #actual = a vector of actual labels
+  #predicted = predicted labels
+  classes <- unique(actual)
+  results <- data.frame()
+  for(k in classes){
+    results <- rbind(results, 
+                     data.frame(class.name = k,
+                                weight = sum(actual == k)/length(actual),
+                                precision = sum(predicted == k & actual == k)/sum(predicted == k), 
+                                recall = sum(predicted == k & actual == k)/sum(actual == k)))
+  }
+  results$score <- results$weight * 2 * (results$precision * results$recall) / (results$precision + results$recall) 
+  return(sum(results$score))
+}
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
