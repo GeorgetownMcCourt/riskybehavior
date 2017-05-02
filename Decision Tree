@@ -31,6 +31,11 @@ library(plotROC)
 
 #Train
 
+fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
+summary(fittingall)
+printcp(fittingall)
+fittingall$variable.importance
+
 #default (cp = 0.01)
 fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
 
