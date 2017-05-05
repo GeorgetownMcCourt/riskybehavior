@@ -1,4 +1,4 @@
-###Ordered Probit###
+###Ordered Logistic Regression ###
 
 library(MASS)
 library(pscl)
