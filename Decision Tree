@@ -1,7 +1,5 @@
 ##Decision tree##
 
-
-
 library(rpart)
 library(rpart.plot)
 library(ggplot2)
@@ -27,8 +25,6 @@ library(plotROC)
     return(sum(results$score))
   }
   
-
-
 #Train
 
 fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
@@ -38,18 +34,13 @@ fittingall$variable.importance
 
 #default (cp = 0.01)
 fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
-
 summary(fit)
-
 printcp(fit)
-
 fit$variable.importance
 
 #cp = 0
 fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
-
 summary(fit.0)
-
 printcp(fit.0)
 
 #Calculate optimal
@@ -108,8 +99,6 @@ input.valopt <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predi
 input.val0 <-rbind(data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val))
 
 input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predict.val))
-
-
 
 #meanf1 
 
