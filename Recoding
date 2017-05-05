@@ -10,11 +10,12 @@ read.csv(temp)
 
 ##Grades
 summary(df$skl_gra)
-df$grades[df$skl_gra =="Mostly A's"] <- 1
-df$grades[df$skl_gra =="Mostly B's"] <- 2
+
+df$grades[df$skl_gra =="Mostly A's"] <- 5
+df$grades[df$skl_gra =="Mostly B's"] <- 4
 df$grades[df$skl_gra =="Mostly C's"] <- 3
-df$grades[df$skl_gra =="Mostly D's"] <- 4
-df$grades[df$skl_gra =="Mostly E's or F's"] <- 5
+df$grades[df$skl_gra =="Mostly D's"] <- 2
+df$grades[df$skl_gra =="Mostly E's or F's"] <- 1
 count(df$grades)
 
 ##Grades option 2
