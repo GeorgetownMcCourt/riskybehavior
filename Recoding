@@ -1,12 +1,14 @@
-###Recoding variables###
-
-library(plyr)
-library(Hmisc)
 
 ##Get data - NEED TO EDIT
 temp <- tempfile()
 download.file("https://github.com/GeorgetownMcCourt/riskybehavior/blob/master/Somerville_High_School_YRBS_Raw_Data_2002-2014.csv", temp, mode="wb")
 read.csv(temp)
+
+###Recoding variables###
+
+library(plyr)
+library(Hmisc)
+
 
 ##Grades
 summary(df$skl_gra)
