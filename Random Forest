@@ -1,0 +1,238 @@
+#Create new dataframe with recoded variables and dependent variable
+df2 <- df[c(1:3, 12, 194:219)]
+
+#First iteration (RF1): include only observations with complete data
+df2 <- df2[complete.cases(df2),]
+
+#RF1: 70-15-15 partition
+set.seed(100)
+rand <- runif(nrow(df2))
+train <- df2[rand > 0.3,]
+validate <- df2[rand > 0.15 & rand <= 0.3,]
+test <- df2[rand <= 0.15,]
+
+#RF1: Include all variables
+train$grades2 <- factor(train$grades2)
+fit1.0 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train)
+
+#RF1: Diagnostics
+fit1.0
+print(importance(fit1.0, type = 2))
+plot(fit1.0)
+
+#RF1: OOB error = 56.25%, tune model
+fittune1.0 <- tuneRF(train[,-(1:6)], train$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                     improve = 0.001, trace = TRUE, plot = TRUE)
+fittune1.0
+
+#RF1: Four variables per split minimizes OOB error; tuning model
+fit1.1 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train, mtry=4)
+fit1.1
+
+#RF1: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+pred.rf.train <- predict(fit1.1, train, type='prob')
+pred.rf.test <- predict(fit1.1, test, type='prob')
+input.rf <- rbind(data.frame(model = "train", d = train$grades2, m = pred.rf.train),
+                  data.frame(model = "test", d = test$grades2, m = pred.rf.test))
+
+#RF1: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.6766
+  a <- input.rf
+  a$d <- as.factor(a$d)
+  revalue(a$d, c("Mostly B's" = "Not A's")) -> a$d
+  revalue(a$d, c("Mostly C's" = "Not A's")) -> a$d
+  revalue(a$d, c("Mostly D's" = "Not A's")) -> a$d
+  revalue(a$d, c("Mostly E's or F's" = "Not A's")) -> a$d
+  roc.rf <- ggplot(a, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf)
+
+#RF1: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.301
+  b <- input.rf
+  b$d <- as.factor(b$d)
+  revalue(b$d, c("Mostly A's" = "Not B's")) -> b$d
+  revalue(b$d, c("Mostly C's" = "Not B's")) -> b$d
+  revalue(b$d, c("Mostly D's" = "Not B's")) -> b$d
+  revalue(b$d, c("Mostly E's or F's" = "Not B's")) -> b$d
+  roc.rf2 <- ggplot(b, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf2)
+
+#RF1: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.236
+  c <- input.rf
+  c$d <- as.factor(c$d)
+  revalue(c$d, c("Mostly A's" = "Not C's")) -> c$d
+  revalue(c$d, c("Mostly B's" = "Not C's")) -> c$d
+  revalue(c$d, c("Mostly D's" = "Not C's")) -> c$d
+  revalue(c$d, c("Mostly E's or F's" = "Not C's")) -> c$d
+  roc.rf3 <- ggplot(c, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf3)
+
+#RF1: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.188
+  d <- input.rf
+  d$d <- as.factor(d$d)
+  revalue(d$d, c("Mostly A's" = "Not D's")) -> d$d
+  revalue(d$d, c("Mostly B's" = "Not D's")) -> d$d
+  revalue(d$d, c("Mostly C's" = "Not D's")) -> d$d
+  revalue(d$d, c("Mostly E's or F's" = "Not D's")) -> d$d
+  roc.rf4 <- ggplot(d, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf4)
+
+#RF1: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.142
+  e <- input.rf
+  e$d <- as.factor(e$d)
+  revalue(e$d, c("Mostly A's" = "Not E's")) -> e$d
+  revalue(e$d, c("Mostly B's" = "Not E's")) -> e$d
+  revalue(e$d, c("Mostly C's" = "Not E's")) -> e$d
+  revalue(e$d, c("Mostly D's" = "Not E's")) -> e$d
+  roc.rf5 <- ggplot(e, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf5)
+
+#RF1: Predict activity for validate sample; only 43.5% were correctly classified using RF1
+  validate$gradepred <- predict(fit1.1, validate, type='class')
+  validate$correct[validate$grades2 == validate$gradepred] <- 1
+  validate$correct[validate$grades2 != validate$gradepred] <- 0
+  mean(validate$correct)
+
+#RF1: Variable importance; age has the most importance, followed by marijuana use, gender, sexual activity and alcohol use
+  fit1.1$importance
+  
+#RF1: Using only complete observations, RF provides low predictability power, possibly because sample is too small
+
+#Second iteration (RF2): impute missing data on independent variables
+  df3 <- df[c(1:3, 12, 194:219)]
+
+#RF2: Include only observations without missing values for grade, race, gender and age
+  df3 <- df3[!is.na(df3[,6]),]
+  df3 <- df3[!is.na(df3[,20]),]
+  df3 <- df3[!is.na(df3[,21]),]
+  df3 <- df3[!is.na(df3[,26]),]
+
+#RF2: View summary of NA values
+  summary(df3)
+
+#RF2: Remove additional columns, impute values; some warnings appear (NAs introduced by coercion)
+  df4 <- df3[-c(1:5)]
+  df5 <- kNN(df4, variable = c(2:14, 22:25), k=5)
+  summary(df5)
+
+#RF2: Create new data frame of only variables
+  df6 <- df5[c(1:25)]
+
+#RF2: 70-15-15 partition
+  set.seed(100)
+  rand <- runif(nrow(df6))
+  train2 <- df6[rand > 0.3,]
+  validate2 <- df6[rand > 0.15 & rand <= 0.3,]
+  test2 <- df6[rand <= 0.15,]
+
+#RF2: Include all variables
+  train2$grades2 <- factor(train2$grades2)
+  fit2.0 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                         + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                         + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                         + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                         + heroin + meth, data = train2)
+
+#RF2: Diagnostics
+  fit2.0
+  print(importance(fit2.0, type = 2))
+  plot(fit2.0)
+
+#RF2: OOB error = 56.7%, tune model
+  fittune2.0 <- tuneRF(train2[c(2:25)], train2$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                       improve = 0.001, trace = TRUE, plot = TRUE)
+  fittune2.0
+
+#RF2: Two variables per split minimizes OOB error; tuning model
+  fit2.1 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                         + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                         + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                         + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                         + heroin + meth, data = train2, mtry=2)
+  fit2.1
+  
+#RF2: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+  pred.rf.train2 <- predict(fit2.1, train2, type='prob')
+  pred.rf.test2 <- predict(fit2.1, test2, type='prob')
+  input.rf2 <- rbind(data.frame(model = "train", d = train2$grades2, m = pred.rf.train2),
+                    data.frame(model = "test", d = test2$grades2, m = pred.rf.test2))
+
+#RF2: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.611
+  a2 <- input.rf2
+  a2$d <- as.factor(a2$d)
+  revalue(a2$d, c("Mostly B's" = "Not A's")) -> a2$d
+  revalue(a2$d, c("Mostly C's" = "Not A's")) -> a2$d
+  revalue(a2$d, c("Mostly D's" = "Not A's")) -> a2$d
+  revalue(a2$d, c("Mostly E's or F's" = "Not A's")) -> a2$d
+  roc.rf6 <- ggplot(a2, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf6)
+
+#RF2: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.366
+  b2 <- input.rf2
+  b2$d <- as.factor(b2$d)
+  revalue(b2$d, c("Mostly A's" = "Not B's")) -> b2$d
+  revalue(b2$d, c("Mostly C's" = "Not B's")) -> b2$d
+  revalue(b2$d, c("Mostly D's" = "Not B's")) -> b2$d
+  revalue(b2$d, c("Mostly E's or F's" = "Not B's")) -> b2$d
+  roc.rf7 <- ggplot(b2, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf7)
+  
+#RF2: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.315
+  c2 <- input.rf2
+  c2$d <- as.factor(c2$d)
+  revalue(c2$d, c("Mostly A's" = "Not C's")) -> c2$d
+  revalue(c2$d, c("Mostly B's" = "Not C's")) -> c2$d
+  revalue(c2$d, c("Mostly D's" = "Not C's")) -> c2$d
+  revalue(c2$d, c("Mostly E's or F's" = "Not C's")) -> c2$d
+  roc.rf8 <- ggplot(c2, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf8)
+  
+#RF2: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.237
+  d2 <- input.rf2
+  d2$d <- as.factor(d2$d)
+  revalue(d2$d, c("Mostly A's" = "Not D's")) -> d2$d
+  revalue(d2$d, c("Mostly B's" = "Not D's")) -> d2$d
+  revalue(d2$d, c("Mostly C's" = "Not D's")) -> d2$d
+  revalue(d2$d, c("Mostly E's or F's" = "Not D's")) -> d2$d
+  roc.rf9 <- ggplot(d2, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf9)
+  
+#RF2: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.106
+  e2 <- input.rf2
+  e2$d <- as.factor(e2$d)
+  revalue(e2$d, c("Mostly A's" = "Not E's")) -> e2$d
+  revalue(e2$d, c("Mostly B's" = "Not E's")) -> e2$d
+  revalue(e2$d, c("Mostly C's" = "Not E's")) -> e2$d
+  revalue(e2$d, c("Mostly D's" = "Not E's")) -> e2$d
+  roc.rf10 <- ggplot(e2, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+    geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+  calc_auc(roc.rf10)
+
+#RF2: Predict activity for validate sample; only 42.7% were correctly classified using RF2 via imputation
+  validate2$gradepred <- predict(fit2.1, validate2, type='class')
+  validate2$correct[validate2$grades2 == validate2$gradepred] <- 1
+  validate2$correct[validate2$grades2 != validate2$gradepred] <- 0
+  mean(validate2$correct)
+  
+#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, being Asian, and marijuana use
+  fit2.1$importance
+  
+#RF2: Even after imputation, RF provides low predictability power
+  
+#Concluding remarks: Both RF models demonstrate that age has the greatest importance, while risky behaviors such as sexual activity and marijuana use are also important.
+  
