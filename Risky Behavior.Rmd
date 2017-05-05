@@ -1,0 +1,61 @@
+---
+title: "Risky Behaviors"
+author: by Andrea Chamorro, Mariam Khan, Janani Shankaran; Georgetown University's
+  McCourt School of Public Policy
+date: "May 8, 2017"
+output:
+  html_document:
+    theme: journal
+    toc: yes
+  pdf_document:
+    toc: yes
+subtitle: How do risky behaviors predict student academic achievement?
+---
+
+# Introduction
+
+# Background
+
+# Data/Methodology
+
+The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
+
+##Descriptive statistics
+
+```{r}
+
+```
+
+
+# Analysis
+
+
+```{r}
+
+```
+
+
+##Decision tree
+
+```{r}
+
+```
+
+##Random Forrest
+
+```{r}
+
+```
+
+##Ordered probit
+
+```{r}
+
+```
+
+
+# Results
+
+# Conclusion
+
+
