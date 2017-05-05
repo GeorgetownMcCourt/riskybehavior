@@ -9,11 +9,11 @@ Much of motivation for this project lies in the need for educational reform. We 
 ## Usage
 
 
-First, the dataset is recorded from categorical variables into dummy variables. The survey asks students how many times they have engaged in a risky behaviors in the past 30 days.  For example, the variable, cig_30, examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, we would recode cig_30 as a binary variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
+First, the dataset is recorded from categorical variables into dummy variables. The survey asks students how many times they have engaged in a risky behaviors in the past 30 days.  For example, the variable, cig_30, examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, recode cig_30 as a binary variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
 
 In addition, our dependent variable, skl_gra, which examines the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
-Second, the dataset is divided into a 70-15-15 partition. Decision Trees, Random Forest, and Ordered Probit will be considered. The Mean-F1 value, the AUC value, the MAPE value, will be taken into consideration, when determining the optimal technique. The optimal technique will help us to most accurately predict students’ actual grades.
+Second, the dataset is divided into a 70-15-15 partition. Decision Trees, Random Forest, and Ordered Logistic Regression will be considered. The Mean-F1 value, and the AUC value will be taken into consideration, when determining the optimal technique. The optimal technique will help us to most accurately predict students’ actual grades.
 
 After determining which technique is optimal, we will predict the grades for all the students in the dataset. The optimal model will tell us the extent to which various risky behaviors may play a role in students’ academic outcomes.
                 
@@ -30,11 +30,9 @@ Conducted some exploratory analysis of the data (e.g. describing the data, summa
 
 *We identified variables of interest, which we wish to use in our analysis: grade (skl_gra), gang membership (gang), physical altercation in school (fit_skl), physical altercation outside of school (fit_out), carried weapon in school (weap_skl), carried weapon outside of school (weap_out), self-infliction (hurtself), cigarette use in the past 30 days (cig_30), tobacco chewing in the past 30 days (chew_30), alcohol consumption in the past 30 days (alc_30), marijuana use in the past 30 days (pot_30), cocaine use in the past 30 days (coc_30), heroin in the past 30 days (her_30), meth use in the past 30 days (meth_30), ecstasy use in the past 30 days (x_30), painkiller use without a prescription in the past 30 days (oxy_30), other drugs (oth_30), participation in sexual intercourse (sex_ever), and teen pregnancy (pregnant).  
 
-*We’ve started to clean the dataset and recode the variables. 
-
-*We have also partitioned the data: 70 percent of the dataset is in training set, 15 percent of the dataset is in the testing set, and 15 percent of the dataset is in the validation set.
+*We  partitioned the data: 70 percent of the dataset is in training set, 15 percent of the dataset is in the test set, and 15 percent of the dataset is in the validation set.
 
 ## Contributors 
-Janani Shankaran
-Andrea Chamorro
+Janani Shankaran,
+Andrea Chamorro, and
 Mariam Khan
