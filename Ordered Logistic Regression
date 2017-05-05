@@ -20,6 +20,7 @@ meanf1 <- function(actual, predicted){
   return(sum(results$score))
 }
 
+
 ### Violence
 m1<- polr(factor(grades) ~ ingang + schoolaltercation + outsidealtercation + schoolweapon
           + outsideweapon +age2 + white + black + asian + hispanic +female, data = train)
@@ -119,21 +120,25 @@ pR2(m1)
 # McFadden: 0.3406277    
 # r2ML: 0.7186248        
 # r2CU: 0.7364225  
-##Sexual, pregnancy, school altercation,  outside altercation, ciguse and marijuana are statistically significant.
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
 
 #Combination 4
 ### Violence
-m1<- polr(factor(grades) ~ ingang + schoolaltercation + outsidealtercation + schoolweapon
-          + outsideweapon +age2 + white + black + asian + hispanic +female, data = train)
+m1<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
 summary(m1)
 grades<- predict(m1, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades2), is.na(myPredictions$grades))
 pR2(m1)
-##mean-f1: 0.763376
+##mean-f1: 0.7380959
 ##Psuedo R-squared values:
-# McFadden: 0.2817524     
-# r2ML: 0.6282460        
-# r2CU: 0.6475670
-##School altercation ,outside altercation, outside weapons are statistically signficant.
+# McFadden: 0.3376233    
+# r2ML: 0.7184929         
+# r2CU: 0.7357181 
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.
+
+
+
