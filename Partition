@@ -1,22 +1,17 @@
 ###Partition###
-
-
-
-
 library(dplyr)
 
+#Option 1 
 dftrain <- df[sample(nrow(df), 
                      size = round(0.7*nrow(df)),
                      replace = F),]
-
 dftest <- anti_join(df, dftrain, by = "id")
-
 dfval <- dftest[sample(nrow(dftest), 
                        size = round(0.5*nrow(dftest)),
                        replace = F),]
-
 dftest <- anti_join(dftest, dfval, by = "id")
 
+#Option 2
 set.seed(100)
 rand <- runif(nrow(df2))
 train <- df2[rand > 0.3,]
