@@ -1,10 +1,8 @@
+###Ordered Probit###
+
 library(MASS)
-m1<- polr(factor(grades2) ~ schoolaltercation + schoolweapon + outsideweapon , data = train)
-summary(m1)
-grades<- predict(m1, test)
-id <- test$id 
-myPredictions<- cbind.data.frame(id, grades)
-View(myPredictions)
+library(pscl)
+
 meanf1 <- function(actual, predicted){
   #Mean F1 score function
   #actual = a vector of actual labels
@@ -21,4 +19,104 @@ meanf1 <- function(actual, predicted){
   results$score <- results$weight * 2 * (results$precision * results$recall) / (results$precision + results$recall) 
   return(sum(results$score))
 }
+
+### Violence
+m1<- polr(factor(grades) ~ ingang + schoolaltercation + outsidealtercation + schoolweapon
+          + outsideweapon +age2 + white + black + asian + hispanic +female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.763376
+##Psuedo R-squared values:
+# McFadden: 0.2817524     
+# r2ML: 0.6282460        
+# r2CU: 0.6475670
+##School altercation ,outside altercation, outside weapons are statistically signficant.
+
+
+### Drugs and Alcohol
+m1<- polr(factor(grades) ~  ecstasy + oxy +otherdrug + +alcohol + marijuana + heroin 
+          + ciguse + tobacco + age2 + white + black+ asian + hispanic +female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.7664641
+##Psuedo R-squared values:
+# McFadden: 0.2823151         
+# r2ML: 0.6256826         
+# r2CU: 0.6455568 
+###Oxy, alcohol, and marijuana, and ciguse are statistically significant.
+
+###Sexual Behavior
+m1<- polr(factor(grades) ~ sexual + pregnancy + age2 + white + black 
+          + asian +   hispanic + female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.8341682
+##Psuedo R-squared values:
+# McFadden: 0.1450125         
+# r2ML:  0.3511225           
+# r2CU: 0.3698603 
+##Sexual intercourse and pregnancy are statistically signficant.
+
+#Combination 1
+m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy  + +alcohol + ciguse + marijuana + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.742487
+##Psuedo R-squared values:
+# McFadden: 0.3381522    
+# r2ML:  0.7145596        
+# r2CU: 0.7325338 
+##Sexual, pregnancy, school altercation,  outside weapons, ciguse and marijuana are statistically significant. 
+
+# Combination 2
+m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy+alcohol + ciguse + marijuana + hurtingself + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1:0.551699
+##Psuedo R-squared values:
+# McFadden: 0.5891756     
+# r2ML:  0.7145596        
+# r2CU: 0.7325338 
+##Sexual, pregnancy, school altercation,  outside weapons, ciguse and marijuana are statistically significant.
+
+
+#Combination 3
+m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation +schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.7382061
+##Psuedo R-squared values:
+# McFadden: 0.3406277    
+# r2ML: 0.7186248        
+# r2CU: 0.7364225  
+##Sexual, pregnancy, school altercation,  outside weapons, ciguse and marijuana are statistically significant.
