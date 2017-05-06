@@ -22,37 +22,37 @@ The objective of this study is to build upon the CDC research, in order to bette
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
-## Descriptive statistics
+# Descriptive statistics
 
 ```{r}
 
 ```
 
-## Model Techniques
+# Model Techniques
 
-# Decision tree
-
-```{r}
-
-```
-
-# Random Forrest
+## Decision tree
 
 ```{r}
 
 ```
 
-# Ordered probit
+## Random Forrest
+
+```{r}
+
+```
+
+## Ordered probit
 
 ```{r}
 
 ```
 
 
-## Analysis 
+# Analysis 
 
-## Policy Implications 
+# Policy Implications 
 
-## Conclusion
+# Conclusion
 
 
