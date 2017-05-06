@@ -57,4 +57,4 @@ In terms of demographic characteristics, roughly 40.1% of students are white, 15
 
 # Conclusion
 
-
+Overall, while risky behaviors are associated with lower grades, they are not strong predictors of grades. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers. 
