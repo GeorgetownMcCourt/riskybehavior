@@ -297,7 +297,7 @@ summary(mA)
 grades<- predict(mA, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(mA)
 ##mean-f1: 0.763376
 ##Psuedo R-squared values:
@@ -314,7 +314,7 @@ summary(mB)
 grades<- predict(mB, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(mB)
 ##mean-f1: 0.7664641
 ##Psuedo R-squared values:
@@ -330,7 +330,7 @@ summary(mC)
 grades<- predict(mC, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(mC)
 ##mean-f1: 0.8341682
 ##Psuedo R-squared values:
@@ -347,7 +347,7 @@ summary(m1)
 grades<- predict(m1, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m1)
 ##mean-f1: 0.742487
 ##Psuedo R-squared values:
@@ -364,7 +364,7 @@ summary(m2)
 grades<- predict(m2, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m2)
 ##mean-f1:0.551699
 ##Psuedo R-squared values:
@@ -382,7 +382,7 @@ summary(m3)
 grades<- predict(m3, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m3)
 ##mean-f1: 0.7382061
 ##Psuedo R-squared values:
@@ -399,9 +399,9 @@ summary(m4)
 grades<- predict(m4, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
-meanf1(is.na(test$grades2), is.na(myPredictions$grades))
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m4)
-##mean-f1: 0.7380959
+##mean-f1: 0.7313642
 ##Psuedo R-squared values:
 # McFadden: 0.3537376    
 # r2ML: 0.7393928         
