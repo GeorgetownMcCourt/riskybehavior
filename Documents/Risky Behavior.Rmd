@@ -14,48 +14,45 @@ subtitle: How do risky behaviors predict student academic achievement?
 
 # Introduction
 
-# Background
+For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Center for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation. 
+
+The objective of this study is to build upon the CDC research, in order to better understand how certain behaviors can impact the grades of students. These results can encourage schools to promote health and safety among students, which would help them to establish lifelong healthy behaviors. 
 
 # Data/Methodology
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
-##Descriptive statistics
+## Descriptive statistics
+
+```{r}
+
+```
+
+## Model Techniques
+
+# Decision tree
+
+```{r}
+
+```
+
+# Random Forrest
+
+```{r}
+
+```
+
+# Ordered probit
 
 ```{r}
 
 ```
 
 
-# Analysis
+## Analysis 
 
+## Policy Implications 
 
-```{r}
-
-```
-
-
-##Decision tree
-
-```{r}
-
-```
-
-##Random Forrest
-
-```{r}
-
-```
-
-##Ordered probit
-
-```{r}
-
-```
-
-
-# Results
-
-# Conclusion
+## Conclusion
 
 
