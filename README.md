@@ -32,6 +32,8 @@ Conducted some exploratory analysis of the data (e.g. describing the data, summa
 
 *We  partitioned the data: 70 percent of the dataset is in training set, 15 percent of the dataset is in the test set, and 15 percent of the dataset is in the validation set.
 
+*We used the following techinques: Ordered Logistic Regression, Decision Trees, and Random Forest. 
+
 ## Contributors 
 Janani Shankaran,
 Andrea Chamorro, and
