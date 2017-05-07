@@ -14,7 +14,7 @@ subtitle: How do risky behaviors predict student academic achievement?
 
 # Introduction
 
-For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Center for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation. 
+For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Centers for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health-risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation. 
 
 The objective of this study is to build upon the CDC research, in order to better understand how certain behaviors can impact the grades of students. These results can encourage schools to promote health and safety among students, which would help them to establish lifelong healthy behaviors. 
 
@@ -59,7 +59,7 @@ meanf1 <- function(actual, predicted){
 
 # Descriptive statistics
 
-In terms of demographic characteristics, roughly 40.1% of students are white, 15.0% are black, 24.4% are Hispanic, 8.7% are Asian, and 11.8% identify as another race. In addition, 219 observations exhibit missingness in race. Approximately 52.4% of the sample is female, while the average age of students is 16.25. 
+In terms of demographic characteristics, roughly 40.1 percent of students are White, 15.0 percent are Black, 24.4 percent are Hispanic, 8.7 percent are Asian, and 11.8 percent identify as Other race. In addition, 219 observations exhibit missingness in race. Approximately 52.4 percent of the sample is female, while the average age of students is 16.25. 
 
 Among the risky behaviors, students are most likely to have engaged in sexual activity or consumed alcohol. Some of the variables exhibit considerable missingness, including variables related to hurting oneself, gang affiliation, altercations, and drug use.
 
@@ -441,7 +441,7 @@ meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
 
 ## Random Forest
 
-Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25%. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7%. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
+Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25 percent. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7 percent. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
 
 ```{r}
 #Create new dataframe with recoded variables and dependent variable
