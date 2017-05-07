@@ -734,7 +734,7 @@ pR2(m3)
 ##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
 
 ##Model 4
-m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapo
+m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
           + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
           + asian + hispanic + female, data = train)
 summary(m4)
