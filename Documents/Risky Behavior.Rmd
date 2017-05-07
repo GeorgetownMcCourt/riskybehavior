@@ -22,7 +22,7 @@ The objective of this study is to build upon the CDC research, in order to bette
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 setwd("/Users/mariamkhan/Desktop")
 df<- read.csv("Somerville_High_School_YRBS_Raw_Data_2002-2014.csv")
 
@@ -76,7 +76,7 @@ In addition, the race variables were also recoded into dummy variables. For exam
 
 Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ##Grades
 df$grades[df$skl_gra =="Mostly A's"] <- 5
 df$grades[df$skl_gra =="Mostly B's"] <- 4
@@ -286,7 +286,7 @@ df$meth[df$meth_30 =="40 or more times"] <- 1
 
 Third, the dataset is divided into a 70-15-15 partition. 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ###New data frame
 df2 <- df[c(1:3, 12, 194:219)]
 
@@ -325,40 +325,35 @@ Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be 
 
 For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values.  Also, we conducted a variable of importance test on all of our variables of interest. We found that sex, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We made sure to remove any variables that would be result in multicollinearity, but the Mean-F1 score was still 1. Just looking at the predicted values shows this is clearly not accurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models. 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Train
 fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself 
 + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon 
 + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 
 + white + asian + hispanic + otherrace + female + alcohol + marijuana 
 + heroin + meth, method = "class", data = dftrain)
-summary(fittingall)
-printcp(fittingall)
 fittingall$variable.importance
-
+```
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 #default (cp = 0.01)
 fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana 
 + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
 summary(fit)
 printcp(fit)
-fit$variable.importance
 
-#cp = 0
+#Zero (cp = 0)
 fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 
 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
 summary(fit.0)
 printcp(fit.0)
 
-#Calculate optimal
+#Optimal
 
 #Refit with optimal
 fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana 
 + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
-
-#Determine which variable had the greatest influence
-fit.opt$variable.importance
-
-
+```
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Predict values for train 
 predict.opt.train <- predict(fit.opt, dftrain, type='class')
 predict.0.train <- predict(fit.0, dftrain, type='class')
@@ -417,12 +412,11 @@ meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))
 meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))
 meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
 ```
-
 ## Random Forest
 
 Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25 percent. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7 percent. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Create new dataframe with recoded variables and dependent variable
 df2 <- df[c(1:3, 12, 194:219)]
 
@@ -668,7 +662,7 @@ fit2.1$importance
 Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1 was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden's pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades. 
 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ##Model 1
 m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
           + outsideweapon +  oxy  + +alcohol + ciguse + marijuana + age2 + white + black 
