@@ -550,12 +550,10 @@ validate$correct[validate$grades2 == validate$gradepred] <- 1
 validate$correct[validate$grades2 != validate$gradepred] <- 0
 mean(validate$correct)
 
-#RF1: Variable importance; age has the most importance, followed by marijuana use, 
-gender, sexual activity and alcohol use
+#RF1: Variable importance; age has the most importance, followed by marijuana use, gender, sexual activity and alcohol use
 fit1.1$importance
 
-#RF1: Using only complete observations, RF provides low predictability power, 
-possibly because sample is too small
+#RF1: Using only complete observations, RF provides low predictability power, possibly because sample is too small
 
 #Second iteration (RF2): impute missing data on independent variables
 df3 <- df[c(1:3, 12, 194:219)]
@@ -678,14 +676,12 @@ validate2$correct[validate2$grades2 == validate2$gradepred] <- 1
 validate2$correct[validate2$grades2 != validate2$gradepred] <- 0
 mean(validate2$correct)
 
-#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, 
-being Asian, and marijuana use.
+#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, being Asian, and marijuana use.
 fit2.1$importance
 
 #RF2: Even after imputation, RF provides low predictability power
 
-#Concluding remarks: Both RF models demonstrate that age has the greatest importance, 
-while risky behaviors such as sexual activity and marijuana use are also important.
+#Concluding remarks: Both RF models demonstrate that age has the greatest importance, while risky behaviors such as sexual activity and marijuana use are also important.
 ```
 
 ## Ordered Logistic Regression
