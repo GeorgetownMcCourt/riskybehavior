@@ -659,7 +659,7 @@ fit2.1$importance
 
 ## Ordered Logistic Regression
 
-Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1 was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden's pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades. 
+Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana have a negative, statistically significant association with grades. In contrast, in many of the models, white, asian, and female have a positive, statistically significant association with grades.
 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
@@ -673,12 +673,7 @@ id <- test$id
 myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m1)
-##mean-f1: 0.742487
-##Psuedo R-squared values:
-# McFadden: 0.3381522    
-# r2ML:  0.7145596        
-# r2CU: 0.7325338 
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant. 
+##Sexual, pregnancy, school altercation, outside altercation, outside weapon, ciguse, marijuana, white, asian, and female are statistically significant. 
 
 ##Model 2
 m2<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
@@ -689,13 +684,8 @@ grades<- predict(m2, test)
 id <- test$id 
 myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades), is.na(myPredictions$grades))
-pR2(m2)
-##mean-f1:0.551699
-##Psuedo R-squared values:
-# McFadden: 0.5891756     
-# r2ML: 0.9693411       
-# r2CU: 0.9719647  
-##Sexual, pregnancy, school altercation, ciguse and marijuana are statistically significant.
+pR2(m2)  
+##Sexual, pregnancy, school altercation, outside altercation, ciguse, and marijuana, white, asian and female are statistically significant.
 
 
 ##Model 3
@@ -708,12 +698,7 @@ id <- test$id
 myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m3)
-##mean-f1: 0.7382061
-##Psuedo R-squared values:
-# McFadden: 0.3406277    
-# r2ML: 0.7186248        
-# r2CU: 0.7364225  
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
+##Sexual, pregnancy, school altercation, outside altercation, ciguse, marijuana, white, asian, and female are statistically significant.
 
 ##Model 4
 m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
@@ -725,17 +710,12 @@ id <- test$id
 myPredictions<- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades), is.na(myPredictions$grades))
 pR2(m4)
-##mean-f1: 0.7313642
-##Psuedo R-squared values:
-# McFadden: 0.3537376    
-# r2ML: 0.7393928         
-# r2CU: 0.7562858 
-##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, marijuana, white, asian, female are statistically signficant.
 ```
 
 # Conclusion
 
-Overall, random forest and ordered logistic regression are preferred, however, there is low predictability power. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers. 
+Overall, random forest is preferred, however, there is low predictability power. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers. 
 
 
 # Application in the Real World 
