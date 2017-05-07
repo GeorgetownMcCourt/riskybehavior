@@ -147,6 +147,38 @@ $(document).ready(function () {
 <div id="data" class="section level1">
 <h1>Data</h1>
 <p>The City of Somerville’s Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: <a href="http://bit.ly/2nRvJYa" class="uri">http://bit.ly/2nRvJYa</a>.</p>
+<pre class="r"><code>setwd(&quot;C:/Users/anchamorro/Desktop/_MPP/Intro to Data Science/Class project&quot;)
+df&lt;- read.csv(&quot;Somerville_High_School_YRBS_Raw_Data_2002-2014.csv&quot;)
+
+###Libraries###
+library(plyr)
+library(Hmisc)
+library(MASS)
+library(pscl)
+library(randomForest)
+library(VIM)
+library(rpart)
+library(rpart.plot)
+library(ggplot2)
+library(gridExtra)
+library(plotROC)
+
+meanf1 &lt;- function(actual, predicted){
+  #Mean F1 score function
+  #actual = a vector of actual labels
+  #predicted = predicted labels
+  classes &lt;- unique(actual)
+  results &lt;- data.frame()
+  for(k in classes){
+    results &lt;- rbind(results, 
+                     data.frame(class.name = k,
+                                weight = sum(actual == k)/length(actual),
+                                precision = sum(predicted == k &amp; actual == k)/sum(predicted == k), 
+                                recall = sum(predicted == k &amp; actual == k)/sum(actual == k)))
+  }
+  results$score &lt;- results$weight * 2 * (results$precision * results$recall) / (results$precision + results$recall) 
+  return(sum(results$score))
+}</code></pre>
 </div>
 <div id="descriptive-statistics" class="section level1">
 <h1>Descriptive statistics</h1>
@@ -159,6 +191,218 @@ $(document).ready(function () {
 <p>Second, many of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, examines how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. In this case, chew_30 would be recoded as a dummy variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1.</p>
 <p>In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0.</p>
 <p>Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to âmostly Aâsâ, while a 1 corresponds to âmostly Eâs/Fâs.â</p>
+<pre class="r"><code>##Grades
+df$grades[df$skl_gra ==&quot;Mostly A's&quot;] &lt;- 5
+df$grades[df$skl_gra ==&quot;Mostly B's&quot;] &lt;- 4
+df$grades[df$skl_gra ==&quot;Mostly C's&quot;] &lt;- 3
+df$grades[df$skl_gra ==&quot;Mostly D's&quot;] &lt;- 2
+df$grades[df$skl_gra ==&quot;Mostly E's or F's&quot;] &lt;- 1
+
+
+##Grades option 2
+df$grades2[df$skl_gra ==&quot;Mostly A's&quot;] &lt;- &quot;Mostly A's&quot;
+df$grades2[df$skl_gra ==&quot;Mostly B's&quot;] &lt;- &quot;Mostly B's&quot;
+df$grades2[df$skl_gra ==&quot;Mostly C's&quot;] &lt;- &quot;Mostly C's&quot;
+df$grades2[df$skl_gra ==&quot;Mostly D's&quot;] &lt;- &quot;Mostly D's&quot;
+df$grades2[df$skl_gra ==&quot;Mostly E's or F's&quot;] &lt;- &quot;Mostly E's or F's&quot;
+
+
+##Ingang
+df$ingang[df$gang ==&quot;Yes&quot;] &lt;- 1
+df$ingang[df$gang ==&quot;No&quot;] &lt;- 0
+
+
+##schoolaltercation
+df$schoolaltercation[df$fit_skl ==&quot;0 times&quot;] &lt;- 0
+df$schoolaltercation[df$fit_skl ==&quot;1 time&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;2 or 3 times&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;4 or 5 times&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;6 or 7 times&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;8 or 9 times&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;10 or 11 times&quot;] &lt;- 1
+df$schoolaltercation[df$fit_skl ==&quot;12 or more times&quot;] &lt;- 1
+
+
+##outsidealtercation
+df$outsidealtercation[df$fit_out ==&quot;0 times&quot;] &lt;- 0
+df$outsidealtercation[df$fit_out ==&quot;1 time&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;2 or 3 times&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;4 or 5 times&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;6 or 7 times&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;8 or 9 times&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;10 or 11 times&quot;] &lt;- 1
+df$outsidealtercation[df$fit_out ==&quot;12 or more times&quot;] &lt;- 1
+
+##schoolweapon
+df$schoolweapon[df$weap_skl ==&quot;0 days&quot;] &lt;- 0
+df$schoolweapon[df$weap_skl ==&quot;1 day&quot;] &lt;- 1
+df$schoolweapon[df$weap_skl ==&quot;2 or 3 days&quot;] &lt;- 1
+df$schoolweapon[df$weap_skl==&quot;4 or 5 days&quot;] &lt;- 1
+df$schoolweapon[df$weap_skl ==&quot;6 or more days&quot;] &lt;- 1
+
+##outsideweapon
+df$outsideweapon[df$weap_out ==&quot;0 days&quot;] &lt;- 0
+df$outsideweapon[df$weap_out ==&quot;1 day&quot;] &lt;- 1
+df$outsideweapon[df$weap_out ==&quot;2 or 3 days&quot;] &lt;- 1
+df$outsideweapon[df$weap_out==&quot;4 or 5 days&quot;] &lt;- 1
+df$outsideweapon[df$weap_out ==&quot;6 or more days&quot;] &lt;- 1
+
+##hurtingself
+df$hurtingself[df$hurtself ==&quot;0 times&quot;] &lt;- 0
+df$hurtingself[df$hurtself ==&quot;1 or 2 times&quot;] &lt;- 1
+df$hurtingself[df$hurtself ==&quot;3 to 5 times&quot;] &lt;- 1
+df$hurtingself[df$hurtself ==&quot;6 to 9 times&quot;] &lt;- 1
+df$hurtingself[df$hurtself ==&quot;10 to 19 times&quot;] &lt;- 1
+df$hurtingself[df$hurtself ==&quot;20 or more times&quot;] &lt;- 1
+
+##CigUse  
+df$ciguse[df$cig_30 ==&quot;0 days&quot;] &lt;- 0
+df$ciguse[df$cig_30 ==&quot;1 or 2 days&quot;] &lt;- 1
+df$ciguse[df$cig_30 ==&quot;3 to 5 days&quot;] &lt;- 1
+df$ciguse[df$cig_30 ==&quot;6 to 9 days&quot;] &lt;- 1
+df$ciguse[df$cig_30 ==&quot;10 to 19 days&quot;] &lt;- 1
+df$ciguse[df$cig_30 ==&quot;20 to 29 days&quot;] &lt;- 1
+df$ciguse[df$cig_30 ==&quot;All 30 days&quot;] &lt;- 1
+
+
+##Tobacco 
+df$tobacco[df$chew_30 ==&quot;0 days&quot;] &lt;- 0
+df$tobacco[df$chew_30 ==&quot;1 or 2 days&quot;] &lt;- 1
+df$tobacco[df$chew_30 ==&quot;3 to 5 days&quot;] &lt;- 1
+df$tobacco[df$chew_30 ==&quot;6 to 9 days&quot;] &lt;- 1
+df$tobacco[df$chew_30 ==&quot;10 to 19 days&quot;] &lt;- 1
+df$tobacco[df$chew_30 ==&quot;20 to 29 days&quot;] &lt;- 1
+df$tobacco[df$chew_30 ==&quot;All 30 days&quot;] &lt;- 1
+
+##Ectasy 
+df$ecstasy[df$x_30 ==&quot;0 times&quot;] &lt;- 0
+df$ecstasy[df$x_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$ecstasy[df$x_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$ecstasy[df$x_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$ecstasy[df$x_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$ecstasy[df$x_30 ==&quot;40 or more times&quot;] &lt;- 1
+
+##Oxy 
+df$oxy[df$oxy_30 ==&quot;0 times&quot;] &lt;- 0
+df$oxy[df$oxy_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$oxy[df$oxy_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$oxy[df$oxy_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$oxy[df$oxy_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$oxy[df$oxy_30 ==&quot;40 or more times&quot;] &lt;- 1
+
+##Other
+df$otherdrug[df$oth_30 ==&quot;0 times&quot;] &lt;- 0
+df$otherdrug[df$oth_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$otherdrug[df$oth_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$otherdrug[df$oth_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$otherdrug[df$oth_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$otherdrug[df$oth_30 ==&quot;40 or more times&quot;] &lt;- 1
+
+##Sexual 
+df$sexual[df$sex_ever ==&quot;No&quot;] &lt;- 0
+df$sexual[df$sex_ever ==&quot;Yes&quot;] &lt;- 1
+
+##Pregnancy
+df$pregnancy[df$pregnant ==&quot;No&quot;] &lt;- 0
+df$pregnancy[df$pregnant ==&quot;I have never had sexual intercourse&quot;] &lt;- 0
+df$pregnancy[df$pregnant ==&quot;Yes&quot;] &lt;- 1
+
+##Age
+#Note that age variable is left and right censored
+df$age2[df$age==&quot;13 years old or younger&quot;] &lt;- 13
+df$age2[df$age==&quot;14 years old&quot;] &lt;- 14
+df$age2[df$age==&quot;15 years old&quot;] &lt;- 15
+df$age2[df$age==&quot;16 years old&quot;] &lt;- 16
+df$age2[df$age==&quot;17 years old&quot;] &lt;- 17
+df$age2[df$age==&quot;18 years old or older&quot;] &lt;- 18
+
+##Race
+
+#Race = White
+df$white[df$race==&quot;White&quot;] &lt;- 1
+df$white[df$race==&quot;American Indian or Alaska Native&quot;] &lt;- 0
+df$white[df$race==&quot;Asian or other Pacific Islander&quot;] &lt;- 0
+df$white[df$race==&quot;Black&quot;] &lt;- 0
+df$white[df$race==&quot;Hispanic or Latino&quot;] &lt;- 0
+df$white[df$race==&quot;Other&quot;] &lt;- 0
+
+#Race = Black
+df$black[df$race==&quot;White&quot;] &lt;- 0
+df$black[df$race==&quot;American Indian or Alaska Native&quot;] &lt;- 0
+df$black[df$race==&quot;Asian or other Pacific Islander&quot;] &lt;- 0
+df$black[df$race==&quot;Black&quot;] &lt;- 1
+df$black[df$race==&quot;Hispanic or Latino&quot;] &lt;- 0
+df$black[df$race==&quot;Other&quot;] &lt;- 0
+
+#Race = Asian
+df$asian[df$race==&quot;White&quot;] &lt;- 0
+df$asian[df$race==&quot;American Indian or Alaska Native&quot;] &lt;- 0
+df$asian[df$race==&quot;Asian or other Pacific Islander&quot;] &lt;- 1
+df$asian[df$race==&quot;Black&quot;] &lt;- 0
+df$asian[df$race==&quot;Hispanic or Latino&quot;] &lt;- 0
+df$asian[df$race==&quot;Other&quot;] &lt;- 0
+
+#Race = Hispanic
+df$hispanic[df$race==&quot;White&quot;] &lt;- 0
+df$hispanic[df$race==&quot;American Indian or Alaska Native&quot;] &lt;- 0
+df$hispanic[df$race==&quot;Asian or other Pacific Islander&quot;] &lt;- 0
+df$hispanic[df$race==&quot;Black&quot;] &lt;- 0
+df$hispanic[df$race==&quot;Hispanic or Latino&quot;] &lt;- 1
+df$hispanic[df$race==&quot;Other&quot;] &lt;- 0
+
+#Race = Other
+df$otherrace[df$race==&quot;White&quot;] &lt;- 0
+df$otherrace[df$race==&quot;American Indian or Alaska Native&quot;] &lt;- 1
+df$otherrace[df$race==&quot;Asian or other Pacific Islander&quot;] &lt;- 0
+df$otherrace[df$race==&quot;Black&quot;] &lt;- 0
+df$otherrace[df$race==&quot;Hispanic or Latino&quot;] &lt;- 0
+df$otherrace[df$race==&quot;Other&quot;] &lt;- 1
+
+##Gender
+df$female[df$GENDER==&quot;Male&quot;] &lt;- 0
+df$female[df$GENDER==&quot;Female&quot;] &lt;- 1
+
+##Alcohol
+df$alcohol[df$alc_30 ==&quot;0 days&quot;] &lt;- 0
+df$alcohol[df$alc_30 ==&quot;1 or 2 days&quot;] &lt;- 1
+df$alcohol[df$alc_30 ==&quot;3 to 5 days&quot;] &lt;- 1
+df$alcohol[df$alc_30 ==&quot;6 to 9 days&quot;] &lt;- 1
+df$alcohol[df$alc_30 ==&quot;10 to 19 days&quot;] &lt;- 1
+df$alcohol[df$alc_30 ==&quot;20 to 29 days&quot;] &lt;- 1
+df$alcohol[df$alc_30 ==&quot;All 30 days&quot;] &lt;- 1
+
+##Marijuana
+df$marijuana[df$pot_30 ==&quot;0 times&quot;] &lt;- 0
+df$marijuana[df$pot_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$marijuana[df$pot_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$marijuana[df$pot_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$marijuana[df$pot_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$marijuana[df$pot_30 ==&quot;40 or more times&quot;] &lt;- 1
+
+##Heroin
+df$heroin[df$her_30 ==&quot;0 times&quot;] &lt;- 0
+df$heroin[df$her_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$heroin[df$her_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$heroin[df$her_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$heroin[df$her_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$heroin[df$her_30 ==&quot;40 or more times&quot;] &lt;- 1
+
+
+##Meth
+describe(df$meth_30)</code></pre>
+<pre><code>## df$meth_30 
+##        n  missing distinct 
+##     8003        0        7 
+## 
+## (1513, 0.189), 0 times (6438, 0.804), 1 or 2 times (28, 0.003), 10 to 19
+## times (5, 0.001), 20 to 39 times (7, 0.001), 3 to 9 times (10, 0.001), 40
+## or more times (2, 0.000)</code></pre>
+<pre class="r"><code>df$meth[df$meth_30 ==&quot;0 times&quot;] &lt;- 0
+df$meth[df$meth_30 ==&quot;1 or 2 times&quot;] &lt;- 1
+df$meth[df$meth_30 ==&quot;3 to 9 times&quot;] &lt;- 1
+df$meth[df$meth_30 ==&quot;10 to 19 times&quot;] &lt;- 1
+df$meth[df$meth_30 ==&quot;20 to 39 times&quot;] &lt;- 1
+df$meth[df$meth_30 ==&quot;40 or more times&quot;] &lt;- 1</code></pre>
 <p>Third, the dataset is divided into a 70-15-15 partition.</p>
 <pre class="r"><code>###New data frame
 df2 &lt;- df[c(1:3, 12, 194:219)]
@@ -233,39 +477,9 @@ summary(df2)</code></pre>
 ##  Max.   :1.0000   Max.   :1.0000  
 ##  NA's   :1347     NA's   :1350</code></pre>
 <pre class="r"><code>###Partition###
-library(dplyr)</code></pre>
-<pre><code>## -------------------------------------------------------------------------</code></pre>
-<pre><code>## data.table + dplyr code now lives in dtplyr.
-## Please library(dtplyr)!</code></pre>
-<pre><code>## -------------------------------------------------------------------------</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following object is masked from 'package:gridExtra':
-## 
-##     combine</code></pre>
-<pre><code>## The following objects are masked from 'package:data.table':
-## 
-##     between, first, last</code></pre>
-<pre><code>## The following object is masked from 'package:randomForest':
-## 
-##     combine</code></pre>
-<pre><code>## The following object is masked from 'package:MASS':
-## 
-##     select</code></pre>
-<pre><code>## The following objects are masked from 'package:Hmisc':
-## 
-##     combine, src, summarize</code></pre>
-<pre><code>## The following objects are masked from 'package:plyr':
-## 
-##     arrange, count, desc, failwith, id, mutate, rename, summarise,
-##     summarize</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>#Option 1 
+library(dplyr)
+
+#Option 1 
 dftrain &lt;- df[sample(nrow(df), 
                      size = round(0.7*nrow(df)),
                      replace = F),]
@@ -287,15 +501,914 @@ test &lt;- df2[rand &lt;= 0.15,]</code></pre>
 <h1>Methodology</h1>
 <div id="decision-tree" class="section level2">
 <h2>Decision tree</h2>
-<p>Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremely unlikely. It is suspected there may have been a problem with the data or under the hood. In general, the decision tree has been known to overfit predictive models.</p>
+<p>For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values. Also, we conducted a variable of importance test on all of our variables of interest. We found that sex, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We made sure to remove any variables that would be result in multicollinearity, but the Mean-F1 score was still 1. Just looking at the predicted values shows this is clearly not accurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models.</p>
+<pre class="r"><code>#Train
+fittingall &lt;- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself 
++ schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon 
++ outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 
++ white + asian + hispanic + otherrace + female + alcohol + marijuana 
++ heroin + meth, method = &quot;class&quot;, data = dftrain)
+fittingall$variable.importance</code></pre>
+<pre><code>##    sexual   alcohol    female marijuana      age2    ciguse pregnancy 
+## 59.080049 15.523193 15.400005 13.199821 11.821116  9.242428  5.923324</code></pre>
+<pre class="r"><code>#Predict values for train 
+predict.opt.train &lt;- predict(fit.opt, dftrain, type='class')
+predict.0.train &lt;- predict(fit.0, dftrain, type='class')
+predict.train &lt;- predict(fit, dftrain, type='class')
+
+input.train &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dftrain$grades2,  m = predict.opt.train), 
+                     data.frame(model = &quot;CP = 0&quot;, d = dftrain$grades2,  m = predict.0.train),
+                     data.frame(model = &quot;default&quot;, d =  dftrain$grades2,  m = predict.train))
+
+input.trainopt &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dftrain$grades2, m = predict.opt.train))
+
+input.train0 &lt;-rbind( data.frame(model = &quot;CP = 0&quot;, d = dftrain$grades2,  m = predict.0.train))
+
+input.traindef &lt;-rbind( data.frame(model = &quot;default&quot;, d = dftrain$grades2,  m = predict.train))
+
+#Predict values for test 
+predict.opt.test &lt;- predict(fit.opt, dftest, type='class')
+predict.0.test &lt;- predict(fit.0, dftest, type='class')
+predict.test &lt;- predict(fit, dftest, type='class')
+
+input.test &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dftest$grades2, m = predict.opt.test), 
+                    data.frame(model = &quot;CP = 0&quot;, d = dftest$grades2,  m = predict.0.test),
+                    data.frame(model = &quot;default&quot;, d = dftest$grades2,  m = predict.test))
+
+input.testopt &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dftest$grades2, m = predict.opt.test))
+
+input.test0 &lt;-rbind(data.frame(model = &quot;CP = 0&quot;, d = dftest$grades2,  m = predict.0.test))
+
+input.testdef &lt;-rbind(data.frame(model = &quot;default&quot;, d = dftest$grades2,  m = predict.test))
+
+
+#Predict values for val
+predict.opt.val &lt;- predict(fit.opt, dfval, type='class')
+predict.0.val &lt;- predict(fit.0, dfval, type='class')
+predict.val &lt;- predict(fit, dfval, type='class')
+
+input.val &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dfval$grades2, m = predict.opt.val), 
+                   data.frame(model = &quot;CP = 0&quot;, d = dfval$grades2,  m = predict.0.val),
+                   data.frame(model = &quot;default&quot;, d = dfval$grades2,  m = predict.val))
+
+input.valopt &lt;- rbind(data.frame(model = &quot;optimal&quot;, d = dfval$grades2, m = predict.opt.val))
+
+input.val0 &lt;-rbind(data.frame(model = &quot;CP = 0&quot;, d = dfval$grades2,  m = predict.0.val))
+
+input.valdef &lt;-rbind(data.frame(model = &quot;default&quot;, d = dfval$grades2,  m = predict.val))
+
+#meanf1 
+
+#FYI meanf1 is w/o  NaNs, but all are wrongly giving 1
+
+meanf1(is.nan(input.val$d), is.nan(input.val$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>meanf1(is.nan(input.test$d), is.nan(input.test$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>meanf1(is.nan(input.train$d), is.nan(input.train$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))</code></pre>
+<pre><code>## [1] 1</code></pre>
 </div>
 <div id="random-forest" class="section level2">
 <h2>Random Forest</h2>
 <p>Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25 percent. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7 percent. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models.</p>
+<pre class="r"><code>#Create new dataframe with recoded variables and dependent variable
+df2 &lt;- df[c(1:3, 12, 194:219)]
+
+#First iteration (RF1): include only observations with complete data
+df2 &lt;- df2[complete.cases(df2),]
+
+#RF1: 70-15-15 partition
+set.seed(100)
+rand &lt;- runif(nrow(df2))
+train &lt;- df2[rand &gt; 0.3,]
+validate &lt;- df2[rand &gt; 0.15 &amp; rand &lt;= 0.3,]
+test &lt;- df2[rand &lt;= 0.15,]
+
+#RF1: Include all variables
+train$grades2 &lt;- factor(train$grades2)
+fit1.0 &lt;- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train)
+
+#RF1: Diagnostics
+fit1.0</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = grades2 ~ ingang + schoolaltercation +      outsidealtercation + schoolweapon + outsideweapon + hurtingself +      ciguse + tobacco + ecstasy + oxy + otherdrug + sexual + pregnancy +      age2 + white + black + asian + hispanic + otherrace + female +      alcohol + marijuana + heroin + meth, data = train) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 4
+## 
+##         OOB estimate of  error rate: 56.25%
+## Confusion matrix:
+##                   Mostly A's Mostly B's Mostly C's Mostly D's
+## Mostly A's                74        437         17          0
+## Mostly B's                68        819         64          1
+## Mostly C's                24        426         73          4
+## Mostly D's                 1        134         34          3
+## Mostly E's or F's          0         30          5          0
+##                   Mostly E's or F's class.error
+## Mostly A's                        0   0.8598485
+## Mostly B's                        1   0.1406086
+## Mostly C's                        0   0.8614801
+## Mostly D's                        0   0.9825581
+## Mostly E's or F's                 0   1.0000000</code></pre>
+<pre class="r"><code>print(importance(fit1.0, type = 2))</code></pre>
+<pre><code>##                    MeanDecreaseGini
+## ingang                    8.0899669
+## schoolaltercation        15.8328246
+## outsidealtercation       19.7355463
+## schoolweapon              8.5137819
+## outsideweapon            16.4697612
+## hurtingself              17.2952644
+## ciguse                   17.2435198
+## tobacco                   6.3945486
+## ecstasy                   5.4286638
+## oxy                       3.6088664
+## otherdrug                 7.3631570
+## sexual                   21.6739620
+## pregnancy                11.6166314
+## age2                     50.8022042
+## white                    17.4942090
+## black                    12.3162063
+## asian                    17.2533251
+## hispanic                 15.2282547
+## otherrace                12.5266322
+## female                   22.9466788
+## alcohol                  20.2750109
+## marijuana                22.8066280
+## heroin                    0.5572619
+## meth                      1.7857303</code></pre>
+<pre class="r"><code>plot(fit1.0)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>#RF1: OOB error = 56.25%, tune model
+fittune1.0 &lt;- tuneRF(train[,-(1:6)], train$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                     improve = 0.001, trace = TRUE, plot = TRUE)</code></pre>
+<pre><code>## mtry = 1  OOB error = 56.98% 
+## Searching left ...
+## Searching right ...
+## mtry = 2     OOB error = 56.07% 
+## 0.01584786 0.001 
+## mtry = 4     OOB error = 55.35% 
+## 0.01288245 0.001 
+## mtry = 8     OOB error = 57.43% 
+## -0.03752039 0.001</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>fittune1.0</code></pre>
+<pre><code>##       mtry  OOBError
+## 1.OOB    1 0.5697517
+## 2.OOB    2 0.5607223
+## 4.OOB    4 0.5534989
+## 8.OOB    8 0.5742664</code></pre>
+<pre class="r"><code>#RF1: Four variables per split minimizes OOB error; tuning model
+fit1.1 &lt;- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train, mtry=4)
+fit1.1</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = grades2 ~ ingang + schoolaltercation +      outsidealtercation + schoolweapon + outsideweapon + hurtingself +      ciguse + tobacco + ecstasy + oxy + otherdrug + sexual + pregnancy +      age2 + white + black + asian + hispanic + otherrace + female +      alcohol + marijuana + heroin + meth, data = train, mtry = 4) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 4
+## 
+##         OOB estimate of  error rate: 55.62%
+## Confusion matrix:
+##                   Mostly A's Mostly B's Mostly C's Mostly D's
+## Mostly A's                89        420         19          0
+## Mostly B's                69        818         65          1
+## Mostly C's                21        430         73          3
+## Mostly D's                 1        134         34          3
+## Mostly E's or F's          0         31          4          0
+##                   Mostly E's or F's class.error
+## Mostly A's                        0   0.8314394
+## Mostly B's                        0   0.1416579
+## Mostly C's                        0   0.8614801
+## Mostly D's                        0   0.9825581
+## Mostly E's or F's                 0   1.0000000</code></pre>
+<pre class="r"><code>#RF1: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+pred.rf.train &lt;- predict(fit1.1, train, type='prob')
+pred.rf.test &lt;- predict(fit1.1, test, type='prob')
+input.rf &lt;- rbind(data.frame(model = &quot;train&quot;, d = train$grades2, m = pred.rf.train),
+                  data.frame(model = &quot;test&quot;, d = test$grades2, m = pred.rf.test))
+
+#RF1: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.6766
+a &lt;- input.rf
+a$d &lt;- as.factor(a$d)
+revalue(a$d, c(&quot;Mostly B's&quot; = &quot;Not A's&quot;)) -&gt; a$d
+revalue(a$d, c(&quot;Mostly C's&quot; = &quot;Not A's&quot;)) -&gt; a$d
+revalue(a$d, c(&quot;Mostly D's&quot; = &quot;Not A's&quot;)) -&gt; a$d
+revalue(a$d, c(&quot;Mostly E's or F's&quot; = &quot;Not A's&quot;)) -&gt; a$d
+roc.rf &lt;- ggplot(a, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.2112472
+## 2     1     2 0.3234421</code></pre>
+<pre class="r"><code>#RF1: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.301
+b &lt;- input.rf
+b$d &lt;- as.factor(b$d)
+revalue(b$d, c(&quot;Mostly A's&quot; = &quot;Not B's&quot;)) -&gt; b$d
+revalue(b$d, c(&quot;Mostly C's&quot; = &quot;Not B's&quot;)) -&gt; b$d
+revalue(b$d, c(&quot;Mostly D's&quot; = &quot;Not B's&quot;)) -&gt; b$d
+revalue(b$d, c(&quot;Mostly E's or F's&quot; = &quot;Not B's&quot;)) -&gt; b$d
+roc.rf2 &lt;- ggplot(b, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf2)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.3009447
+## 2     1     2 0.4517517</code></pre>
+<pre class="r"><code>#RF1: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.236
+c &lt;- input.rf
+c$d &lt;- as.factor(c$d)
+revalue(c$d, c(&quot;Mostly A's&quot; = &quot;Not C's&quot;)) -&gt; c$d
+revalue(c$d, c(&quot;Mostly B's&quot; = &quot;Not C's&quot;)) -&gt; c$d
+revalue(c$d, c(&quot;Mostly D's&quot; = &quot;Not C's&quot;)) -&gt; c$d
+revalue(c$d, c(&quot;Mostly E's or F's&quot; = &quot;Not C's&quot;)) -&gt; c$d
+roc.rf3 &lt;- ggplot(c, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf3)</code></pre>
+<pre><code>##   PANEL group      AUC
+## 1     1     1 0.235664
+## 2     1     2 0.406936</code></pre>
+<pre class="r"><code>#RF1: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.188
+d &lt;- input.rf
+d$d &lt;- as.factor(d$d)
+revalue(d$d, c(&quot;Mostly A's&quot; = &quot;Not D's&quot;)) -&gt; d$d
+revalue(d$d, c(&quot;Mostly B's&quot; = &quot;Not D's&quot;)) -&gt; d$d
+revalue(d$d, c(&quot;Mostly C's&quot; = &quot;Not D's&quot;)) -&gt; d$d
+revalue(d$d, c(&quot;Mostly E's or F's&quot; = &quot;Not D's&quot;)) -&gt; d$d
+roc.rf4 &lt;- ggplot(d, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf4)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.1875847
+## 2     1     2 0.2495748</code></pre>
+<pre class="r"><code>#RF1: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.142
+e &lt;- input.rf
+e$d &lt;- as.factor(e$d)
+revalue(e$d, c(&quot;Mostly A's&quot; = &quot;Not E's&quot;)) -&gt; e$d
+revalue(e$d, c(&quot;Mostly B's&quot; = &quot;Not E's&quot;)) -&gt; e$d
+revalue(e$d, c(&quot;Mostly C's&quot; = &quot;Not E's&quot;)) -&gt; e$d
+revalue(e$d, c(&quot;Mostly D's&quot; = &quot;Not E's&quot;)) -&gt; e$d
+roc.rf5 &lt;- ggplot(e, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf5)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.1423657
+## 2     1     2 0.2904328</code></pre>
+<pre class="r"><code>#RF1: Predict activity for validate sample; only 43.5% were correctly classified using RF1
+validate$gradepred &lt;- predict(fit1.1, validate, type='class')
+validate$correct[validate$grades2 == validate$gradepred] &lt;- 1
+validate$correct[validate$grades2 != validate$gradepred] &lt;- 0
+mean(validate$correct)</code></pre>
+<pre><code>## [1] 0.4352442</code></pre>
+<pre class="r"><code>#RF1: Variable importance; age has the most importance, followed by marijuana use, gender, sexual activity and alcohol use
+fit1.1$importance</code></pre>
+<pre><code>##                    MeanDecreaseGini
+## ingang                     8.169895
+## schoolaltercation         16.017567
+## outsidealtercation        19.747189
+## schoolweapon               8.482969
+## outsideweapon             16.629662
+## hurtingself               16.826139
+## ciguse                    17.581044
+## tobacco                    6.541737
+## ecstasy                    5.052518
+## oxy                        3.555228
+## otherdrug                  7.653669
+## sexual                    21.507228
+## pregnancy                 11.928904
+## age2                      49.969373
+## white                     17.040204
+## black                     11.713651
+## asian                     17.080971
+## hispanic                  14.786111
+## otherrace                 12.591051
+## female                    22.675758
+## alcohol                   20.400265
+## marijuana                 22.882414
+## heroin                     0.640794
+## meth                       1.642547</code></pre>
+<pre class="r"><code>#RF1: Using only complete observations, RF provides low predictability power, possibly because sample is too small
+
+#Second iteration (RF2): impute missing data on independent variables
+df3 &lt;- df[c(1:3, 12, 194:219)]
+
+#RF2: Include only observations without missing values for grade, race, gender and age
+df3 &lt;- df3[!is.na(df3[,6]),]
+df3 &lt;- df3[!is.na(df3[,20]),]
+df3 &lt;- df3[!is.na(df3[,21]),]
+df3 &lt;- df3[!is.na(df3[,26]),]
+
+#RF2: View summary of NA values
+summary(df3)</code></pre>
+<pre><code>##   survey          year            id                    skl_gra    
+##      :1285   Min.   :2002   Min.   :   2   Mostly B's       :2857  
+##  SH04:1269   1st Qu.:2004   1st Qu.: 329   Mostly C's       :1979  
+##  SH06: 907   Median :2008   Median : 670   Mostly A's       :1395  
+##  SH08: 965   Mean   :2007   Mean   :1194   Mostly D's       : 617  
+##  SH10: 884   3rd Qu.:2010   3rd Qu.:1330   Mostly E's or F's: 170  
+##  SH12: 840   Max.   :2014   Max.   :9999                    :   0  
+##  SH14: 868                  NA's   :1298   (Other)          :   0  
+##      grades        grades2              ingang       schoolaltercation
+##  Min.   :1.000   Length:7018        Min.   :0.0000   Min.   :0.0000   
+##  1st Qu.:3.000   Class :character   1st Qu.:0.0000   1st Qu.:0.0000   
+##  Median :4.000   Mode  :character   Median :0.0000   Median :0.0000   
+##  Mean   :3.668                      Mean   :0.0406   Mean   :0.1051   
+##  3rd Qu.:4.000                      3rd Qu.:0.0000   3rd Qu.:0.0000   
+##  Max.   :5.000                      Max.   :1.0000   Max.   :1.0000   
+##                                     NA's   :1458     NA's   :1309     
+##  outsidealtercation  schoolweapon    outsideweapon     hurtingself   
+##  Min.   :0.0000     Min.   :0.0000   Min.   :0.0000   Min.   :0.000  
+##  1st Qu.:0.0000     1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000  
+##  Median :0.0000     Median :0.0000   Median :0.0000   Median :0.000  
+##  Mean   :0.1928     Mean   :0.0463   Mean   :0.1045   Mean   :0.131  
+##  3rd Qu.:0.0000     3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.000  
+##  Max.   :1.0000     Max.   :1.0000   Max.   :1.0000   Max.   :1.000  
+##  NA's   :1317       NA's   :1310     NA's   :1316     NA's   :3487   
+##      ciguse          tobacco           ecstasy            oxy        
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.00000   Median :0.0000   Median :0.0000  
+##  Mean   :0.1409   Mean   :0.02144   Mean   :0.0221   Mean   :0.0155  
+##  3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+##  NA's   :78       NA's   :114       NA's   :1324     NA's   :1340    
+##    otherdrug          sexual         pregnancy           age2      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :13.00  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:15.00  
+##  Median :0.0000   Median :0.0000   Median :0.0000   Median :16.00  
+##  Mean   :0.0213   Mean   :0.4698   Mean   :0.0508   Mean   :16.26  
+##  3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:17.00  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :18.00  
+##  NA's   :1335     NA's   :258      NA's   :347                     
+##      white            black            asian            hispanic     
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.00000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.00000   Median :0.0000  
+##  Mean   :0.4139   Mean   :0.1463   Mean   :0.08906   Mean   :0.2355  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.00000   Max.   :1.0000  
+##                                                                      
+##    otherrace          female          alcohol         marijuana     
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :1.0000   Median :0.0000   Median :0.0000  
+##  Mean   :0.1151   Mean   :0.5222   Mean   :0.3585   Mean   :0.2088  
+##  3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##                                    NA's   :75       NA's   :98      
+##      heroin            meth       
+##  Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000  
+##  Mean   :0.0049   Mean   :0.0084  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000  
+##  NA's   :1315     NA's   :1319</code></pre>
+<pre class="r"><code>#RF2: Remove additional columns, impute values; some warnings appear (NAs introduced by coercion)
+df4 &lt;- df3[-c(1:5)]
+#It should be noted that this following code may take 5 to 10 minutes
+df5 &lt;- kNN(df4, variable = c(2:14, 22:25), k=5)
+summary(df5)</code></pre>
+<pre><code>##    grades2              ingang       schoolaltercation outsidealtercation
+##  Length:7018        Min.   :0.0000   Min.   :0.0000    Min.   :0.0000    
+##  Class :character   1st Qu.:0.0000   1st Qu.:0.0000    1st Qu.:0.0000    
+##  Mode  :character   Median :0.0000   Median :0.0000    Median :0.0000    
+##                     Mean   :0.1512   Mean   :0.2254    Mean   :0.2915    
+##                     3rd Qu.:0.0000   3rd Qu.:0.0000    3rd Qu.:1.0000    
+##                     Max.   :1.0000   Max.   :1.0000    Max.   :1.0000    
+##   schoolweapon    outsideweapon     hurtingself        ciguse      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.000   Median :0.0000  
+##  Mean   :0.1603   Mean   :0.2082   Mean   :0.443   Mean   :0.1425  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:1.000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.000   Max.   :1.0000  
+##     tobacco           ecstasy            oxy            otherdrug     
+##  Min.   :0.00000   Min.   :0.0000   Min.   :0.00000   Min.   :0.0000  
+##  1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000  
+##  Median :0.00000   Median :0.0000   Median :0.00000   Median :0.0000  
+##  Mean   :0.02223   Mean   :0.1254   Mean   :0.07125   Mean   :0.1146  
+##  3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000  
+##  Max.   :1.00000   Max.   :1.0000   Max.   :1.00000   Max.   :1.0000  
+##      sexual         pregnancy           age2           white       
+##  Min.   :0.0000   Min.   :0.0000   Min.   :13.00   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:15.00   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :16.00   Median :0.0000  
+##  Mean   :0.4887   Mean   :0.0721   Mean   :16.26   Mean   :0.4139  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:17.00   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :18.00   Max.   :1.0000  
+##      black            asian            hispanic        otherrace     
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.00000   Median :0.0000   Median :0.0000  
+##  Mean   :0.1463   Mean   :0.08906   Mean   :0.2355   Mean   :0.1151  
+##  3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+##      female          alcohol         marijuana          heroin       
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.00000  
+##  Median :1.0000   Median :0.0000   Median :0.0000   Median :0.00000  
+##  Mean   :0.5222   Mean   :0.3641   Mean   :0.2135   Mean   :0.06996  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:0.00000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.00000  
+##       meth           2_imp           3_imp           4_imp        
+##  Min.   :0.00000   Mode :logical   Mode :logical   Mode :logical  
+##  1st Qu.:0.00000   FALSE:5560      FALSE:5709      FALSE:5701     
+##  Median :0.00000   TRUE :1458      TRUE :1309      TRUE :1317     
+##  Mean   :0.08222   NA's :0         NA's :0         NA's :0        
+##  3rd Qu.:0.00000                                                  
+##  Max.   :1.00000                                                  
+##    5_imp           6_imp           7_imp           8_imp        
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:5708      FALSE:5702      FALSE:3531      FALSE:6940     
+##  TRUE :1310      TRUE :1316      TRUE :3487      TRUE :78       
+##  NA's :0         NA's :0         NA's :0         NA's :0        
+##                                                                 
+##                                                                 
+##    9_imp           10_imp          11_imp          12_imp       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:6904      FALSE:5694      FALSE:5678      FALSE:5683     
+##  TRUE :114       TRUE :1324      TRUE :1340      TRUE :1335     
+##  NA's :0         NA's :0         NA's :0         NA's :0        
+##                                                                 
+##                                                                 
+##    13_imp          14_imp          22_imp          23_imp       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:6760      FALSE:6671      FALSE:6943      FALSE:6920     
+##  TRUE :258       TRUE :347       TRUE :75        TRUE :98       
+##  NA's :0         NA's :0         NA's :0         NA's :0        
+##                                                                 
+##                                                                 
+##    24_imp          25_imp       
+##  Mode :logical   Mode :logical  
+##  FALSE:5703      FALSE:5699     
+##  TRUE :1315      TRUE :1319     
+##  NA's :0         NA's :0        
+##                                 
+## </code></pre>
+<pre class="r"><code>#RF2: Create new data frame of only variables
+df6 &lt;- df5[c(1:25)]
+
+#RF2: 70-15-15 partition
+set.seed(100)
+rand &lt;- runif(nrow(df6))
+train2 &lt;- df6[rand &gt; 0.3,]
+validate2 &lt;- df6[rand &gt; 0.15 &amp; rand &lt;= 0.3,]
+test2 &lt;- df6[rand &lt;= 0.15,]
+
+#RF2: Include all variables
+train2$grades2 &lt;- factor(train2$grades2)
+fit2.0 &lt;- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train2)
+
+#RF2: Diagnostics
+fit2.0</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = grades2 ~ ingang + schoolaltercation +      outsidealtercation + schoolweapon + outsideweapon + hurtingself +      ciguse + tobacco + ecstasy + oxy + otherdrug + sexual + pregnancy +      age2 + white + black + asian + hispanic + otherrace + female +      alcohol + marijuana + heroin + meth, data = train2) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 4
+## 
+##         OOB estimate of  error rate: 56.7%
+## Confusion matrix:
+##                   Mostly A's Mostly B's Mostly C's Mostly D's
+## Mostly A's               129        736         94          6
+## Mostly B's                88       1580        337          8
+## Mostly C's                25        909        407         22
+## Mostly D's                 6        245        178          8
+## Mostly E's or F's          1         56         52          6
+##                   Mostly E's or F's class.error
+## Mostly A's                        0   0.8663212
+## Mostly B's                        5   0.2170466
+## Mostly C's                        4   0.7022677
+## Mostly D's                        3   0.9818182
+## Mostly E's or F's                 0   1.0000000</code></pre>
+<pre class="r"><code>print(importance(fit2.0, type = 2))</code></pre>
+<pre><code>##                    MeanDecreaseGini
+## ingang                     24.48160
+## schoolaltercation          34.23191
+## outsidealtercation         37.09968
+## schoolweapon               22.51555
+## outsideweapon              31.40988
+## hurtingself                42.02763
+## ciguse                     43.71706
+## tobacco                    17.59558
+## ecstasy                    18.98888
+## oxy                        17.80505
+## otherdrug                  17.90843
+## sexual                     50.04320
+## pregnancy                  27.14882
+## age2                      115.85805
+## white                      35.26027
+## black                      28.42008
+## asian                      36.27921
+## hispanic                   28.48058
+## otherrace                  24.72503
+## female                     50.48644
+## alcohol                    42.54319
+## marijuana                  41.75054
+## heroin                     10.43022
+## meth                       13.93494</code></pre>
+<pre class="r"><code>plot(fit2.0)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAAY1BMVEUAAAAAADoAAGYAAP8AOjoAOpAAZpAAZrYAzQAA//86AAA6OgA6kNtmAABmtv+QOgCQkDqQkNuQ29uQ2/+2ZgC2/7a2///bkDrbtmbb////AAD/AP//tmb/25D//7b//9v///+lQrh7AAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3diZbaRtgu6nK8czwcx9nnpHf6j91OuP+r3MxoKAmpkCg++nnWshuEhq9AvJQGRNoAUCTVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7ABjxmva+b/79Y/vnw1/nB96+XUbaP5bSb38PzeVl//i3oYehVKpdAAz69fWQn+n3f9oBun3gW2+kVsA2vJ4f/36XqnlHUu0CYMixZ7n1qdUD/e/PRn/yEo8DEfky/jDcINUuAIa8nYPvWytAXxob5I3+Z74P+jb+MNwi1S4AhrwOZF4jQPed0UPP8vXYV207jPDp1J3tPgw3SbULgCGvh92fveGNAD10QL9fRu8eSXo7z6N7GApul2oXAEMmBOhbIzT3YdpNyMa4zS1/WESqXQBkNfddfmr0H5vDv7cy9rCR3j5OtN+CP4bqm214lpZqFwBZ0wK0KbeNvu+VNnuomQ4tFEu1C4Cs+QHa3Jw/6QXo8Nn2MF+qXQBkzQ7Qw/H2Tg/zrTHMUSQWl2oXAEN6Ozgz54FevGQ6pYOzgEWk2gXAkFkBesjP7i7OaweZ4CapdgEwZE6AHvKz178UoKwq1S4AhswI0JfcUaXcLAQoS0q1C4Ah0wP0mJ/9s+TtA2VVqXYBMGRqgB6/EJ/rXDoKz6pS7QJgyMQAPeZnNhqbAeo8UBaXahcAQ6YF6DE/88nom0isKtUuAIZMC9D8+UtHzcl8F57FpdoFwJBJAZq/DOiZqzGxplS7ABgyJUAPFwQd7le6HihrSrULgCGjAXoc3vzFo/Oh+MaVQc8XondFelaQahcAQ4YC9Pw7ct+6P4nUD9D2j87pgLKsVLsAGDIUoOfU/Nb5Tc5cgPpVTlaUahcAQwa/RnTKxE+nU+jHAtTvwrOeVLsAGDL8PcxDH/TDX5dfjh8J0FPgOgDP4lLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUu4BRCWAxy0fU4nNcUO1nG3gui2fU0jPseDlX/mn+xCt8YADvVrAAfe2k/9wMFaDAckIF6K+vvf7zb3/PmoMABZYTKUD/+7OdmP/+sb3/+z9zZiFAgeVECtC3XlzuIvX7nFkIUGA5kQL0pb/Bvu2EztoNKkCB5QQK0G1381tv4Ou8bXgBCiwnUIBue5v9zfW3eYeRBCiwHAEKUChQgNqEBx5LoAB1EAl4LJECNH8aU79XOkKAAsuJFKDZE+nnfRVJgALLiRSgh8Rs+/DXrDkIUGA5oQK0eSkmFxMBagsWoBuXswMeRrwAvYkABZYjQAEKCVCAQgIUoFDwAP31dexE0N5JT2nNAP25dbn1s3m3Pbg33Xo1taoZWvwylpwX1Dbx3SVAb9bMjsut1t324NaEM16rwuoya0azhuVWuOXmBbVNfH89dYD2rROg50zqpdPhv/bgxo2fl4fXku3w/uwXs8By1u5Kw8MJHqBzCVABCssRoDe7JUB/VgnQnwIUFiFAb9UKwU6MNMKzMbg5bidy16iuP6hV73JLkp+8OwL0VrcE6KZSgG4EKCxBgN7q2JE8BdLPdoCeEvJnK0DPB/oaD2cOAg4OHKpk0tHE04JnHWy8ToDyDgnQG53S6HSvFSP50Gtk1/Dpk9mh7bOluv+m5eemldnLPhHwzgjQG62UG9ljMq3jUT8PXd/Gv1UKAYYJ0BsJUHi/BOht1oqtob2Xja336xvrwLoCBWjmBz126n4TabXcGth92TzY3+2DAncmQAut3fG7EqD9DXgBeidfahcwwanGL1ubxu0v2QGnQV9aQgxbbxETn+lAAbr74nulAL0cZN90N6CL5jdjkQN19I/Br1UIbdPfW/W04uUybCQ/egOyAfVww1ZcxMSnOlKA7vugs34Gvqc4QH9e/jpiM8WclfDqnJrznD3X7lsiN/3p3dga4Uvr4WbsNGeeH7lbZvFTMTjhUBK0BzXHbpfcrDDAZ8KjChWguwSd+TvGHQL0Tlrv35ven8fZbP+b2zloFtIspj/9fthplC+9hPlyWPjxdid6BkZuL6X4w2RwwkuTcj2p3mdNfz5CcxGxAnS3Ff/7PzdMf1uANs5lv6GG9+AUet0u0rXJMvPpbY02+1W9afrB1e0Kngvphk1u0zZffXNA79FDgHbHvBKEXwaGDEdjs5r8nLmHYAG6eU3p+w2Tlwfoz40AHXHowl3uXd7/p7/XQzSXRe1guiyrM9eBWWQW1+zJNkZqjXl69JyQ7VS8LKY3cqeH2lhSc+rOM9QeoVVdvtrxp5F7ihag2434W7qgNwTo6ci3AM05bgM37h1vXOkQdh/sRsfoIvsJegmca+UuHkH5TfzMWL28Pg3uzEdERhAtQG/sgt4YoO1rwdV0CZqRce5ZTLa7Nz7JOSlPgzIznTy3xp9HNtSB/CI3YwoXoLe58TSmsWshlZv4lvnS2Exu9b7OXZ9N6w3Ye6v23rwT363NDl5mZ91lnpPf/Nnyv/TGmTi3TabxD+tLvosqQIMSoFNMDtAJq39m2+1Lf2DjdmPfWGfqdnidd9hlHm3eb++hu1pv50BOZvHzj2c0Z/ilPQgiEaBTtC/mOTLiJc3GdvW177VCqJGS7VkdY/b67rXLbDtLzW0id4rpVXos7dLDHO9qjhcIT0eATtC5mOfYqOd+YC+Mzjdam9znQwrNLlmjM9nKrPEe45fu6TOtx7L52Y7zZt9008zP84DLI0Ml6EjyrgjQCWYE6CVlTvcbw883v/SSptnNbHUju/3I0UUXhFcnvHO1tWocfvg0j/k1QFQCdIJ2gLYfyxz7GNiFuWkHYy5oOv27TLdxrMyy8Gp2iUfz8zL6eDcY3g8BOsFYp7O3U/BLMwAv+zSn7x6UQRCFAJ3geoDmU+90AGZegAJRCNAJRgK0sYWeSdHmPk17B+HpCNAJJgRo7+BRZkwBCk9GgE4wLUCvbKMLUHg6AnSC4QBtHTy6FqAliwYemAC9bkoHdKOLCe+PAL0uE6CtY0fnYQIU3hcBel02QEfOXgLeCQF6XStAW+ckyU941wTodf0A/SJAAQE6RTNAu9eYW6IoICgBel0uQK+fOA88PQF6XSNAm9fmXKgkICwBelUrP2f/egXwvAToVb0OaPcm8E4J0HHtHzGWmkCDAB33s/UznAIUaBCg4wQoMEiAjhOgwCABOk6AAoME6LhDfuYuvgS8ewJ03KH76ZubQIYAHdcKUIAmATpOgAKDBOio0wEkAQr0CdBR5yPwEhToEaDDtqHZCFARCnQI0GHbzBSgwDABOqzTA12hHCA0ATrsHKDCE8gRoHnHi87//PllI0CBPAE64LDTcxugx98/AugSoAMaAWr/J5AlQId8Oe0CFaBAngAd8sUxJGCcAB1y2IJfrxQgPAE6RoACIwToCPkJjBGgIwQoMEaAjhCgwBgBOkKAAmME6DD5CYwSoMMEKDBKgA4ToMAoATpMgAKjBOgwAQqMEqDDBCgwSoAOE6DAKAE6SH4C4wToIAEKjBOggwQoME6ADhKgwDgBOkiAAuME6CABCowToIMEKDBOgA74KT+BKwToAAEKXCNAAQoJUIBCAhSgkAAFKCRAAQoJUIBCApT7+bHajFebM4wRoKv44R2d8WPgabn5yfqRmbMXgDsQoCvIvZ+f1vSGXp6WHz+aT1H/2WrdH3kufzRHas/mPb0EcTzfSyJAV/Awb91ODrXrGi9yYhN+9JJrbMTuVD/6D7YeyI3248fIPMcm6y19WguPU0wf+U56Pe4H/cjofKg9ZpHlBOjyOqtIyQozZz0bHnUkNbKrcjubptbZme2EWvoj5/um+RwcCNBuVWM19lo//HwPpO/xdrfF9wuHsSbdHFML7FJpVLbpvJ6Xu4OTFS3y2ofkKtktQJfXe9nmv26Zt/zlsc1lDc+FwXlF6a+t3WgaCpHe0juNG4+b6c2cpTfnZZY0lK+te72xcw9mZ3RjVVfuN+8NN2nCMzV5USWVDeRY9pken2+n6MEWD90fmHnu4cyTlCNAiw2HSOv2+cWYtcnYfBGzK1rjTmvtb/XmrnzqDq3nx5k2H9q0RxzZLdkdfVKDSyw0705zrjawO+3QlBOfqdZLN1hF5v6UZk1u0/DIEyrJ3O/Me6zG5odRf428FoFXl5EZ+erMx5+rNgFarPckZ5709oqYzdzmyzppaWNvhivvk7G5X0nasZ7A4Mil5TyPdvOnJNFaZRTmxUO9fnd6tuYQoMWmBGhveyU3Qrs7OXXhg0WtsVKVzbXdp3jnuoE5NML9K3mIIIpKgJbqr3bXVsPTBM2+aKZnsFiF1T1TW272ZK8tBwK01DkCuwMmTPmjmaXdx5YoDrgHAVqo34WcGn3N7VpxCZEJ0BvND1DgWQjQ2/yYvwUPPAsBehsBCu+YAC2QP19piTkDkQjQAsIS2BGgBQQosCNACwhQYEeAzic/gT0BOp8ABfYE6HwCFNgToLPJT+BAgM4mQIEDAQpQSIACFBKgAIUEKEAhAQpQSIACFBKgsziFCbgQoLMIUOAibIC+pa1Pc6e6rbl+mBZoChagr9vU/O3vzea/P9PB93nT39Rc+Qm0hArQY2x++GvzklJRgt7SXPEJtIUK0FNs/v4/23//bPYd0l1/dLrbArR8WuAZRQrQt0Ns/vq6zdBv50GzuqBOYwKWEylAXw7dzl2CnvudL/MOJAlQYDmBAvS/P4/9zu2Nc2q+HkN1IgEKLCdQgP77x3Fz/Zykm902/KydoAXNtesTGCBArxGgwIBAAVppE16AAgMCBej5INLb5eSlZpZOMb+5x/wUo0BPpAA9nsa0/xLn3U5jEqDAkEgBev7+5vlE+rfVT6Q/BacABXoiBejuMNLhq5znKF39q5w6oMCgUAF6uZjIMUrvdjERAQr0BQvQi9d7Xs5OfgIZYQO0TFlzXYcJyBGgw86xKT+BHAE6QnACYwToCAEKjAkeoM0r2/WljDlzF6DAGAE6RoICI546QPsEKLCc4AE6lwAFliNAAQoJ0EG6n8A4ATpIgALj4gXoy/mA+uxvwgtQYEnBAvS1c1LS3AwVoMByQgXor6+90zrnXU9ZgAILihSg+8soNxJzf1HQWb8pJ0CBBUUK0LdeXO4idbXfRBKgwLhIAfrS32DfdkLX+lVO+QlcEShAz78L37Te78ILUOCKQAG67W32N9ffVv0uPMAIAQpQKFCA3nkTHuCKQAF654NIAFdECtD8aUz9XukIAQosJ1KAZk+kn/dVJAEKLCdSgB4Ss+3DX7PmIECB5YQK0OalmFa/mIjzQIErggXo5n6XsxOgwBXxAvQmAhRYjgAdIkCBKwToEAEKXCFAhwhQ4AoBOkSAAlcI0CECFLhCgA6Qn8A1AhSgkAAFKCRAAQoJ0Gk+flyyDOApCNC8bmAKUKBHgA7oJKYABXoE6IB2Yu7vnf+TpsCOAB3QPg/0EJmn8PwoQYGNAB00FKCHvwIUEKCDWgF6DMzLHwkKCNBB2a9ynnNTgAICdNCP3IlMAhRoEKADfvzopKXD70CHAB1wCNCPH1s7PAUo0CBAB/z4cTxY5JA7MECADmgE6Ir1AJEJ0GHtkz8BOgToiMsXOPMPbZxTD++aAB1xPUA/ClB4xwToiCsB+lF8wvsmQK8Zzsh2fopSeHcE6EJ0RuH9EaDLsDkP75AAzZv5s/AfnTAK75AAzZseoCNHmoDnJkDzZvRAhSe8VwI076YAFanwPgjQvJn7QNscT4L3QYDmCVDgKgGaVxag58uPSFB4DwRoXmmAnq8xUjI5EIsAzSvchG8GqBCFZydAV2NPKDw7Abqey6/S3XGhwP0I0PU1rmwvSmFZdS9DIUDv4Hjx0NN/52GZESUsKytdxR5z1fz4sRGgFX4/V4DeQeMX5s+vdjYrXdLpfRp81SevDR9bQdJ9aOBu42cV2hMOrJofu4OmVjegcPrGcttVfWy+0RZZ1HUC9A6yr/j4by3xtHJf/R141RtbLO21qDe3doDmPrH7o308Xgent07m6mlO2ZhwtKVXG1e0sucj83CvPfjyp7+opd5oAvQepr9adw5Qcb2obPB0Hxl8/28+bhpv+tMI/U2WfggO1dGLjo+H6y52Bp2n+NhfbPfTf2i0TjMudZyStz233rCPvTP/Wl3lboPGwrf75OSer9L07hGg9zD6ak8dc/9wfryr69TQsovXoqXWv6dwfutn+kNDm8ntLmNv0GAEjm6tjxY5OkE23463RifrjtasrR9gHzNPxzkRs0/HpjfZ1bKyj/U+cDIfQiVPrAC9h+EXpbm2nf5vffSexmqPfH7glJ2bgS2VbhWtMXorzPWVp7eRdG2Cu5tUUe4ddvwz8ROsOWwoHcdGyr1aJbk4WeGcJ07WjrjBZozNrRNoh67yiutXN0CvlD5AgNZ2es36Adr7jLy8wPl+Te7lb2879kbozSBf4cACJq5uK70PhsLseCPzWHekdperM9bY3I93zgOv5mdzgud3W0srPU9lixWg1R3ea9neSPZN+HHo3mFI515+9MzSWmN0OxStovpldovslrDIOyKT3tlRept43UY3GpUJwVx3JPt0jEQ174YAfVBTUie/r6exbd2Jk37HqzNVd8yPvWDp5VYmQM/h1H58etB0O8ndUoYbkc3y3IdML4z73ctMVg4shPdLgAY2GqD55ByecPIjw/u32vsVusseDZ5OP3dzyrTNJdwaGdabqNWd7M52at5JRmYToE+q2RFdbn7jYxxTbLibe/ybm7QZdefaGyHa3/fYCNDh6NNhZFUClEVdzav2tnizs5rZOZCfwQJlwiIEKPc1uHcxN+a9ioIyApQapoSj/OThCVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEK3SVAX377e+mlFBKgwHLuEaD//Zl+/2fpxZQRoMBy7hGg//6RPi29lEICFFiOHihAobvsA31L6fvSiykjQIHl3Oco/K+vD9IHFaDAcu60D7St3kF5AQosR4ACFBKgAIV8EwmgkAAFKCRAAQrdLUCPO0IrfytegALLuVOANo4jVY1QAQos5z4B2joO/+GvpRc5nQAFlnOXAP3vz3T6Mufb9lbFLyUJUGA59/ou/Dk0d2Fa74vxAhRYzn0uqNzc8Vn14nYCFFjOnS5n961x97XiNrwABZZzp69yNjfa33yVE3gKwQL03z+O076WHc8XoMByYm3CvxxPI30rPalUgALLCXUQ6eXY6zzn5+xOqAAFlhPpNKZfX9M+e3en5e8TeTeveX1QAQosJ9KJ9C/Hmbymcx92O7tvI1P0i8tUB1Cmwlc5Sw8hbWP40/HvZRYv8+JYgALLCXQxkdPB/O3fS2i+zpvfjObKWuCKQJezawTo5SjUzHOipjd3V+yMGQPvUKALKp/Ohjptyu+tFqD7CJ0xZ+D9uc9pTMt89ejlGJwvrU349faB6oQCo+50Iv0i335/O571+evr+USozjn6V81rrgQFxtzpq5yLXH9pdzbUfkaXI0cvM8+kn9tcAQoMi9QD3Z9Jv5/VMTd3J5XO6oDOb64EBQbd65tIy1xDeZ+gLTO7tgIUWM59jsJvg2+ha4C+tPNzbi7Pb64EBYbcaR9o200H5S9zK8hkAQosJ16A3qSgudtJ5k8EvAcC9PokTmYCsgJ9E2kJpQE6fzLg+QnQaZOJUKAn0lc5M359Hdsf0D3nqTwHJSjQF+pE+r57Baij8UBfpK9yZowHaN8NzdUJBTqC90DnEqDAcmJ9lfNmtzVXggJN0b7KeSMBCizHifQzpxaiwEm8AL1cTqTgyNSNzXVSPdAQLEBfO3Oam6ECFFhOqG8i9S8HOjeLbw9QG/HASaQA3f2kRzMx9z3beQenlmiuTihwEClA33pxuYvUWSdILRWgIhSIFaAv/Q32uV9yWqi5EhTYVAnQTA5Okv0J4zV/F358RkvNCQhr3QDNdhBLA3Q7s/7m+tvdvgvfm5MIhffuXgH6dvkB4ucIUAkKBArQh9qEP8ysnaEpcwt4YoEC9IEOIp3n1ozQ40miyQ5SeC8iBWj+NKZ+r3SsuHR1lHnap/Vvmv8Dzy5SgGZPpJ83rxVyrROfl/+EKDy7SAHa/1J9Sh/+mldcujrKDQ6Ref7/sDm/uTwlzUi9ErApc+tO7r5ACCtUgDYvxXRw54uJzF5aozt66atu2lv+m0uynjO1eSO159hewsDt7CQjid2uqTOvc3WZha3YzU6ZW3CSBoalwUdXqWLxBTVnuHiAbupezm7+4tqaA7oPn+73p2rk2uj9/SwOyz0tvXmgq5uN5wcOYw4ttbewxqSdxbaa3n8iJjxfl3K6/zVHGJzX4GJaRW/aT9Pd9RbbLzvlbvema42SGvNqvlAlFWZmfJnnUi7zayylu/D2S9coZK7NedNwwSZsIgboTSrslkyX+DoPaJZxuHt6mVPvRnuN2QzeGV51cuPn+sOtiqYupzOfoVk0p8g8O50u8NhyMxnR/zRqL214Ns14aNUz/0W+lJF9CnrjFurUOGOy89Pcm3Lo+Z9bV/5JyY9408LW03otp73yE0ecrDlDATpZ8+UbHmPs/iZ1nUfprhy9+5tra8xlYa1J+4sdeGvkyhu2yfzXe3z2YubV0Jjk0O7L/+dBS1l4Xs0Xatn5Lja34xxLRh1dT8fW33lPxuQZF9UzNsfGbQG6ptKVaTPSH76lmFZnd3zExno6vM5mZ9Mar/XmGlna0Gyai87UM0PmORhs9fBzc92152xsslzJrQdvrWtwCbkRb1jYeuZXtnqA5gjQp/Wwb40ivbg6vfkfOQS4JwEKUEiAAhRaN0AfjgAFliNAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKBQ3QP/9I32bPZEABZYjQAEKCVCAQoECdJuYOb/9Pae41aoD3h8BClAoUIBu3gQo8EgiBei+D/r7P5c79oECNYUK0M3mJaUPfx1uClCgsmABuvn1NR1zU4AClUUL0M1/fx434wUoUFm4AN1sXlNK3wUoUF3AAN1vxn8SoEBtEQN0vxn/2/8RoEBdIQP0sBmfBChQVdAA3W/GC1CgqqgBuj8lVIACNcUN0CICFFiOAAUoJEABCglQgELBA/TX17HL2eWufne/2oBnJ0ABCj11gPYJUGA5wQN0LgEKLEeAAhQSoACFBChAoXgB+nI+oP5p/sQCFFhOsAB97ZyUNDdDBSiwnFABur+G3Q2/Cj+juZ8/z64OeG8iBejuQvTNxNz9TPzld+InEaDAciIF6FsvLneR+n3OLAQosJxIAfrS32DfdkJn7Qa1DxRYTqAA3XY3+5egf523DS9AgeUECtBtb7O/uf7mu/BALQIUoFCgALUJDzyWQAF634NIDsMD10QK0PxpTLN+21iAAsuJFKDZE+nnfRVJgALLiRSgh8Rs+/DXrDnYBwosJ1SANi/F5GIiQG3BAnTjcnbAw4gXoDcRoMByBChAIQE6xGF44AoBOmQXoEIUGCFAhwhQ4AoBClBIgAIUEqAAhQQoQCEBClBIgA77/NlheGCEAB0mQIFRAnSUAAWGCVCAQgIUoJAABSgkQAEKCVCAQgJ0lKPwwDABOk6CAoME6DgBCgwSoACFBChAIQEKUEiAAhQSoACFBOg4R+GBQQL0CgkKDBGgVwhQYIgABSgkQAEKCVCAQgL0OnMIr0gAAA79SURBVLtBgSwBetVnAQpkCdCr5CeQJ0ABCglQgEICFKCQAJ3AXlAgR4BOIECBHAE6gQAFcgQoQCEBClBIgAIUEqAAhQQoQCEBOonj8ECfAJ1GggI9AnQaAQr0CFCAQgIUoJAABSgkQAEKCdCpHEYCOgToZBIUaBOgkwlQoE2AAhQSoACFBChAIQEKUEiAAhQSoNM5DA+0CNAZJCjQJEBnEKBAkwAFKCRAAQoJUIBCAhSgkAAFKCRA53AYHmgQoHMIUKBBgM4hQIEGAQpQSIACFBKgAIUEKEAhATqXA0nAkQCdS4ACRwJ0LgEKHAlQgEICFKCQAAUoJEABCgnQ2RxFAg4E6HwSFNgToPMJUGBPgBaSooAALfNZgAICtIz8BAQoQCkBClBIgAIUEqCl7AWFd0+AFpOg8N4J0GICFN47AQpQSIACFBKgN7EZD++ZAL1JM0B3t2cGqvyF0AToYq4GaOvB/Z3TN+of55v1D1MIRCBAlzCx89nur36+DHnkAH2c2uDhBAvQX19TSr//c77/35/pt79nTL9CgDaD8DRkIHL6XdCRuX7uj7ZalHU+AM6x3qokX4B45T2LFaAv6eDTacAjB+jnUyx1M2Ysc7ob9Z+HAvRzbs6Di7oSc9kA/dxbXPajYYUEzbcNHk+oAD3l56UTWj9Ah9/n5430TvaMbhPnH8xs748G6EAMT+oZ50cbnkP/A2RsPpMIUKKIFKC77ffv27+vlwStH6DXfG72R6+MOTaTgTv5qYcW1to2L9fvHee7pp87o0+ec38e+YehskgB+pI+/LW/sY3NY4I+foBOd1s6TJq6leXlR4cyuxdG8rvdDR48+yDb7cwG6Gh3WsZyT4ECdBuW532fL8cEfaYALVW6wbvK4fXBXaWbZvBlMvXano3m7XYGt8bozaX9uFMKWFagAP33j/0G/MExQQXoY4XChFqKjkNd7ewOBWdvL3B2p/A9n8HhSu9fS33TWtvfG5TfKzT+8b3KExs1QHcJ+kmALuAB3rATSphb5ZW3SztAW+/HojdaZqLhN/2UaL+aFRPrmTtZZiaF85q4wGyrJz53+dGuzPPcioEnfKawAbrbD/pNgN7uAQL0QXRO1ZqxV7m/M3c4MDujjRdzPcXGu1vXPg2yibnJL7pXwtDfKcsaeDKGFjlu7NSV3qMTP8imChSgzX2gh7vpuwBlLdlO6ug+1eGTZRcsalLyZKZr/hnvfc2L9szfsYfLYmpJ01o3VaAA3Z2+1OiC7s5q+vD/C1BWdSUtOuPeLRYGgnT4/LXRnF2y8CvPVPO44TOIFKC780C/Ne6/7c+pF6C8P6WRVz+56lewqEgBuj+DvrkZ/yZAgYpCBeg+QZt90F2fVIAClcQK0N2Ro2+tAa8CFKglWIDeSoACyxGgAIUEKEAhAQpQKHiA/vo6dhApZdyvNuDZCVCAQk8doH0CFFhO8ACdS4ACyxGgAIUEKEAhAQpQKF6AXn4c/tP1kbsEKLCcYAH62jkpaW6GClBgOaECdHf1uo5ZJzEJUGBJkQJ09ytIzcT89490/Hn4yQQosJxIAfrWi8v9D8vNmYUABZYTKUBf+hvs207orN2gAhRYTqAA7V2Nfud13ja8AAWWEyhAt73N/ub629zvwgMsZ7GAO2XU0jM8EaDAo1ks4E4ZtfQMT5bYhJ/oqbb0NeZRPVVjnqs1FRuz3pIXOIg0kXXhUWnMw3qq1jxlgOZPY+r3Sm9nXXhUGvOwnqo1Txmg2RPpZ34VaRrrwqPSmIf1VK15ygA9JGbbh7/WWJB14VFpzMN6qtY8Z4A2L8V0sMYO0I114XFpzMN6qtY8a4Bubryc3UTWhUelMQ/rqVrzxAF6D9aFR6UxD+upWiNAb2JdeFQa87CeqjUC9CbWhUelMQ/rqVojQG9iXXhUGvOwnqo1AvQm1oVHpTEP66laI0BvYl14VBrzsJ6qNQL0JtaFR6UxD+upWiNAb2JdeFQa87CeqjUC9CbWhUelMQ/rqVojQG9iXXhUGvOwnqo1AvQm1oVHpTEP66laI0BvYl14VBrzsJ6qNQIUIJ5UuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULuNW/f6Stb7XLKPXvH7/93bzXbUyY5v36uiv0w1+XIeEbM156mMYcbJv0/XwnbGv++zOdnZpTtzHpLktZz8vx2Wy+cwPZrhCNAO03JkrzDqvszrk5cRtzeZeeIyduY452L9ATtOaynp2bU7kx6Q7LWNHr+elsduTieGkW3m9MlOY11+tjpXEbk+nlxG3MyUvj4yBwa94uL82xObUbk9ZfxIp2m1q//3N4Xj/VLma+/Vv1/Cr3GxOmebt1dr/F9HKq9Akas/tU2BUcujFHb41Pg8iteW30o/eqNyatv4gVvTSetUff+ug77GlrbvN2GhOleY3tw9djg+I2Zvupdixv26yh0qM05uiwhXDZ5g3bmpdur7J6Y9LqS1jRdr1o9Nsffg94236l/n8u+0D7jQnTvLfLZ/2uU/09dGO277tTY479ncCNOdjtaf/fpwCN3JptQw7bBCf1G5NWX8KKGuv69mb7qX14uy3F742DSP3GhGlec0192b9RAzem4dCW+I3ZfRCcN34jt2abju2t8vqNSWsvYE2NN277cHYEr7sXulF2vzEhm/ey3256isacOjPRG7MNkm+XvYeRW7Pd1Pm+33I7bZvXb0xaewFrauxSvuy5CqUdoJ3GRGzedvXefeo/Q2NeT7sNgzfmsN3bDNCwrXlNH/7f4xH2Q9+yfmPS2gtY00vr3LZHfuWHNAK035iIzTt2AMI35qVxpkzwxry0gyVya05neJ4TtH5j0toLWFPzCXrsV35IK0C7jQnYvNNup/CNaQdo5Ma8HT7SXp+gNbsjlIfy3tLpg7p2Y9LaC1hT+8nqnCEWwmCA7hoTr3nb/Dw0J3pjTifTZz4NgjXmuE9lKEBDteZ8Xtl5TavfmLT2AtYU5qNz0HP1QN/OZ7U+QWMOJ5rtjuiGbszpzMln6IE25eJSD3SmkK98y1MF6CU/n6AxO8ceT+TG9I8dRW5Nw2Fne/3GpLUXsKY4hw+HPNNR+Jd0Oe0ufGMODu/SwI25nBX5FEfhG94e5KVJay9gTW9hTmAb0ii735hQzdvtNbyc5By8MSeHogM35jW1xW5N06O8NGntBawpzlcohjzHN5E2h+/1f2vdDdyYs8O7MXBjMgEauDVNrw/yjbe09gLWFOdLvEMaAVr/a7036F64IXBj+t9Ljd2YboDGbk2jd7lb4eo3Jq2+hDXFuYzMgOZWRvULy5RrnF9yFLcx51OxLjfjNubism8wbmsaL83p+jXVG5NWX8Ka4lzIcEAzQKtf2rDY8RJMTbEbcz7z59CFiduYi0uAxm1N66U5hGP1xqT1F7GmMJfSHtDaz1374trFmtcJb3yBPGZjjpdpPbgcwg7amLPG0em4rWm+NMet89qNSesvYlVRfsxlwFP8JlLzNzDOARq1MZvmD5ScezBxG3PSvJZ73NZcEvRRGpPusIxVBfk5wQGdMy1i/lpi8xeRGut2zMbsHd6nzUO4gRtz0PoxjMCteWt/sm1qNybdZSkATyjVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AICoUu0CAKJKtQsAiCrVLgAgqlS7AJjg3/+vdgWQkWoXANe9pG+1S4CMVLsAuOotCVAeUqpdAFwlQHlQqXYBcJUA5UGl2gXAVQKUB5VqFwBXbONz7/vuYNLv/+zufvjr8sD37pjfO/c/3b1i3o1UuwC4oh2g/5OOAfrr63H4b38fxusOON/XfWUtqXYBcEUrQP/X12On8hKPx8DsDvj3j/P9Zi8VFpRqFwBXnfeBvmzD8Pd/drf++/O4If923EjvDXg9BunugcM0sLRUuwC4qhmgxyx8O9/a9jR3wdkb8HLqeG4T9LSVD8tKtQuAq5oBetyf+XI8kHR+tDfgVceT1aXaBcBVzQA99Cq3vcxzOv76ut1k7w047Tq1+5MVpdoFwFWNAD12M5tHiPb7RXsDDjtMHYRnVal2AXBVP0Abh9wPedkbsNlvxItQVpVqFwBXZQO0vYOzN2Dv3C+VoKwi1S4ArspuwrePrPcGNB9xOImVpNoFwFX9AN2d3Nk6PJQbcErU4XCF26TaBcBV/QA9nya/aZy11B5wOeVJgLKWVLsAuOp8kvwlQPcb5t8Pw/YDewNO30jaP+KCIqwi1S4ArjocYv/ePVu+fZC9N+Dlcl8HlHWk2gXAVbsdnN2vG/UvttQdcJhq5zIRLCrVLgCu22fhp3aAns7z/DQ84HgWky8jsZZUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqFLtAgCiSrULAIgq1S4AIKpUuwCAqP4v7mG1vNbtkgYAAAAASUVORK5CYII=" width="672" /></p>
+<pre class="r"><code>#RF2: OOB error = 56.7%, tune model
+fittune2.0 &lt;- tuneRF(train2[c(2:25)], train2$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                     improve = 0.001, trace = TRUE, plot = TRUE)</code></pre>
+<pre><code>## mtry = 1  OOB error = 58.08% 
+## Searching left ...
+## Searching right ...
+## mtry = 2     OOB error = 56.57% 
+## 0.02597403 0.001 
+## mtry = 4     OOB error = 56.6% 
+## -0.0003603604 0.001</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>fittune2.0</code></pre>
+<pre><code>##       mtry  OOBError
+## 1.OOB    1 0.5808359
+## 2.OOB    2 0.5657492
+## 4.OOB    4 0.5659531</code></pre>
+<pre class="r"><code>#RF2: Two variables per split minimizes OOB error; tuning model
+fit2.1 &lt;- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train2, mtry=2)
+fit2.1</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = grades2 ~ ingang + schoolaltercation +      outsidealtercation + schoolweapon + outsideweapon + hurtingself +      ciguse + tobacco + ecstasy + oxy + otherdrug + sexual + pregnancy +      age2 + white + black + asian + hispanic + otherrace + female +      alcohol + marijuana + heroin + meth, data = train2, mtry = 2) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 56.62%
+## Confusion matrix:
+##                   Mostly A's Mostly B's Mostly C's Mostly D's
+## Mostly A's                57        853         55          0
+## Mostly B's                26       1809        183          0
+## Mostly C's                 9       1096        262          0
+## Mostly D's                 2        305        133          0
+## Mostly E's or F's          0         67         48          0
+##                   Mostly E's or F's class.error
+## Mostly A's                        0   0.9409326
+## Mostly B's                        0   0.1035679
+## Mostly C's                        0   0.8083394
+## Mostly D's                        0   1.0000000
+## Mostly E's or F's                 0   1.0000000</code></pre>
+<pre class="r"><code>#RF2: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+pred.rf.train2 &lt;- predict(fit2.1, train2, type='prob')
+pred.rf.test2 &lt;- predict(fit2.1, test2, type='prob')
+input.rf2 &lt;- rbind(data.frame(model = &quot;train&quot;, d = train2$grades2, m = pred.rf.train2),
+                   data.frame(model = &quot;test&quot;, d = test2$grades2, m = pred.rf.test2))
+
+#RF2: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.611
+a2 &lt;- input.rf2
+a2$d &lt;- as.factor(a2$d)
+revalue(a2$d, c(&quot;Mostly B's&quot; = &quot;Not A's&quot;)) -&gt; a2$d
+revalue(a2$d, c(&quot;Mostly C's&quot; = &quot;Not A's&quot;)) -&gt; a2$d
+revalue(a2$d, c(&quot;Mostly D's&quot; = &quot;Not A's&quot;)) -&gt; a2$d
+revalue(a2$d, c(&quot;Mostly E's or F's&quot; = &quot;Not A's&quot;)) -&gt; a2$d
+roc.rf6 &lt;- ggplot(a2, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf6)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.2860848
+## 2     1     2 0.4005472</code></pre>
+<pre class="r"><code>#RF2: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.366
+b2 &lt;- input.rf2
+b2$d &lt;- as.factor(b2$d)
+revalue(b2$d, c(&quot;Mostly A's&quot; = &quot;Not B's&quot;)) -&gt; b2$d
+revalue(b2$d, c(&quot;Mostly C's&quot; = &quot;Not B's&quot;)) -&gt; b2$d
+revalue(b2$d, c(&quot;Mostly D's&quot; = &quot;Not B's&quot;)) -&gt; b2$d
+revalue(b2$d, c(&quot;Mostly E's or F's&quot; = &quot;Not B's&quot;)) -&gt; b2$d
+roc.rf7 &lt;- ggplot(b2, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf7)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.3654196
+## 2     1     2 0.4237809</code></pre>
+<pre class="r"><code>#RF2: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.315
+c2 &lt;- input.rf2
+c2$d &lt;- as.factor(c2$d)
+revalue(c2$d, c(&quot;Mostly A's&quot; = &quot;Not C's&quot;)) -&gt; c2$d
+revalue(c2$d, c(&quot;Mostly B's&quot; = &quot;Not C's&quot;)) -&gt; c2$d
+revalue(c2$d, c(&quot;Mostly D's&quot; = &quot;Not C's&quot;)) -&gt; c2$d
+revalue(c2$d, c(&quot;Mostly E's or F's&quot; = &quot;Not C's&quot;)) -&gt; c2$d
+roc.rf8 &lt;- ggplot(c2, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf8)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.3127046
+## 2     1     2 0.3812522</code></pre>
+<pre class="r"><code>#RF2: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.237
+d2 &lt;- input.rf2
+d2$d &lt;- as.factor(d2$d)
+revalue(d2$d, c(&quot;Mostly A's&quot; = &quot;Not D's&quot;)) -&gt; d2$d
+revalue(d2$d, c(&quot;Mostly B's&quot; = &quot;Not D's&quot;)) -&gt; d2$d
+revalue(d2$d, c(&quot;Mostly C's&quot; = &quot;Not D's&quot;)) -&gt; d2$d
+revalue(d2$d, c(&quot;Mostly E's or F's&quot; = &quot;Not D's&quot;)) -&gt; d2$d
+roc.rf9 &lt;- ggplot(d2, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf9)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.2416194
+## 2     1     2 0.3249516</code></pre>
+<pre class="r"><code>#RF2: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.106
+e2 &lt;- input.rf2
+e2$d &lt;- as.factor(e2$d)
+revalue(e2$d, c(&quot;Mostly A's&quot; = &quot;Not E's&quot;)) -&gt; e2$d
+revalue(e2$d, c(&quot;Mostly B's&quot; = &quot;Not E's&quot;)) -&gt; e2$d
+revalue(e2$d, c(&quot;Mostly C's&quot; = &quot;Not E's&quot;)) -&gt; e2$d
+revalue(e2$d, c(&quot;Mostly D's&quot; = &quot;Not E's&quot;)) -&gt; e2$d
+roc.rf10 &lt;- ggplot(e2, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle(&quot;Train&quot;)
+calc_auc(roc.rf10)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.1021303
+## 2     1     2 0.3260611</code></pre>
+<pre class="r"><code>#RF2: Predict activity for validate sample; only 42.7% were correctly classified using RF2 via imputation
+validate2$gradepred &lt;- predict(fit2.1, validate2, type='class')
+validate2$correct[validate2$grades2 == validate2$gradepred] &lt;- 1
+validate2$correct[validate2$grades2 != validate2$gradepred] &lt;- 0
+mean(validate2$correct)</code></pre>
+<pre><code>## [1] 0.426306</code></pre>
+<pre class="r"><code>#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, being Asian, and marijuana use.
+fit2.1$importance</code></pre>
+<pre><code>##                    MeanDecreaseGini
+## ingang                    11.278866
+## schoolaltercation         16.359434
+## outsidealtercation        16.839263
+## schoolweapon              10.570157
+## outsideweapon             13.019746
+## hurtingself               13.449536
+## ciguse                    23.260606
+## tobacco                    7.816593
+## ecstasy                    8.958019
+## oxy                        9.088635
+## otherdrug                  9.639591
+## sexual                    29.001844
+## pregnancy                 12.770381
+## age2                      34.212960
+## white                     14.957538
+## black                     13.660365
+## asian                     22.725731
+## hispanic                  13.797576
+## otherrace                  9.470836
+## female                    24.425412
+## alcohol                   18.162452
+## marijuana                 19.953078
+## heroin                     6.041695
+## meth                       7.963536</code></pre>
+<pre class="r"><code>#RF2: Even after imputation, RF provides low predictability power
+
+#Concluding remarks: Both RF models demonstrate that age has the greatest importance, while risky behaviors such as sexual activity and marijuana use are also important.</code></pre>
 </div>
 <div id="ordered-logistic-regression" class="section level2">
 <h2>Ordered Logistic Regression</h2>
-<p>Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1, as indicated below, was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden’s pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades.</p>
+<p>Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1 was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden’s pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades.</p>
+<pre class="r"><code>##Model 1
+m1&lt;- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy  + +alcohol + ciguse + marijuana + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m1)</code></pre>
+<pre><code>## Call:
+## polr(formula = factor(grades) ~ sexual + pregnancy + schoolaltercation + 
+##     outsidealtercation + outsideweapon + oxy + +alcohol + ciguse + 
+##     marijuana + age2 + white + black + asian + hispanic + female, 
+##     data = train)
+## 
+## Coefficients:
+##                       Value Std. Error t value
+## sexual             -0.31496    0.09423 -3.3426
+## pregnancy          -0.63834    0.20515 -3.1116
+## schoolaltercation  -0.48346    0.16453 -2.9383
+## outsidealtercation -0.25938    0.12315 -2.1063
+## outsideweapon      -0.21032    0.15667 -1.3425
+## oxy                 0.50434    0.47761  1.0560
+## alcohol            -0.07024    0.09911 -0.7087
+## ciguse             -0.74288    0.14780 -5.0263
+## marijuana          -0.56021    0.11927 -4.6971
+## age2                0.01470    0.03400  0.4322
+## white               0.78043    0.13932  5.6019
+## black               0.05931    0.16545  0.3585
+## asian               1.45412    0.18152  8.0106
+## hispanic            0.08875    0.14297  0.6208
+## female              0.46659    0.08208  5.6848
+## 
+## Intercepts:
+##     Value   Std. Error t value
+## 1|2 -3.9684  0.5889    -6.7387
+## 2|3 -2.0374  0.5695    -3.5773
+## 3|4 -0.2860  0.5678    -0.5037
+## 4|5  1.8432  0.5684     3.2430
+## 
+## Residual Deviance: 5399.833 
+## AIC: 5437.833</code></pre>
+<pre class="r"><code>grades&lt;- predict(m1, test)
+id &lt;- test$id 
+myPredictions&lt;- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>pR2(m1)</code></pre>
+<pre><code>##           llh       llhNull            G2      McFadden          r2ML 
+## -2.699917e+03 -2.902245e+03  4.046575e+02  6.971455e-02  1.669733e-01 
+##          r2CU 
+##  1.800763e-01</code></pre>
+<pre class="r"><code>##mean-f1: 0.742487
+##Psuedo R-squared values:
+# McFadden: 0.3381522    
+# r2ML:  0.7145596        
+# r2CU: 0.7325338 
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant. 
+
+##Model 2
+m2&lt;- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy+alcohol + ciguse + marijuana + hurtingself + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m2)</code></pre>
+<pre><code>## Call:
+## polr(formula = factor(grades) ~ sexual + pregnancy + schoolaltercation + 
+##     outsidealtercation + outsideweapon + oxy + alcohol + ciguse + 
+##     marijuana + hurtingself + age2 + white + black + asian + 
+##     hispanic + female, data = train)
+## 
+## Coefficients:
+##                       Value Std. Error t value
+## sexual             -0.31399    0.09428 -3.3305
+## pregnancy          -0.63448    0.20533 -3.0901
+## schoolaltercation  -0.48210    0.16454 -2.9299
+## outsidealtercation -0.25817    0.12319 -2.0957
+## outsideweapon      -0.20809    0.15677 -1.3274
+## oxy                 0.51190    0.47842  1.0700
+## alcohol            -0.06985    0.09912 -0.7047
+## ciguse             -0.73752    0.14854 -4.9652
+## marijuana          -0.55916    0.11931 -4.6865
+## hurtingself        -0.04490    0.12490 -0.3595
+## age2                0.01388    0.03408  0.4073
+## white               0.78124    0.13933  5.6070
+## black               0.05728    0.16554  0.3460
+## asian               1.45469    0.18153  8.0135
+## hispanic            0.08791    0.14298  0.6148
+## female              0.47148    0.08320  5.6667
+## 
+## Intercepts:
+##     Value   Std. Error t value
+## 1|2 -3.9833  0.5904    -6.7472
+## 2|3 -2.0519  0.5710    -3.5937
+## 3|4 -0.3004  0.5692    -0.5278
+## 4|5  1.8288  0.5698     3.2098
+## 
+## Residual Deviance: 5399.704 
+## AIC: 5439.704</code></pre>
+<pre class="r"><code>grades&lt;- predict(m2, test)
+id &lt;- test$id 
+myPredictions&lt;- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>pR2(m2)</code></pre>
+<pre><code>##           llh       llhNull            G2      McFadden          r2ML 
+## -2.699852e+03 -2.902245e+03  4.047868e+02  6.973683e-02  1.670219e-01 
+##          r2CU 
+##  1.801288e-01</code></pre>
+<pre class="r"><code>##mean-f1:0.551699
+##Psuedo R-squared values:
+# McFadden: 0.5891756     
+# r2ML: 0.9693411       
+# r2CU: 0.9719647  
+##Sexual, pregnancy, school altercation, ciguse and marijuana are statistically significant.
+
+
+##Model 3
+m3&lt;- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation +schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m3)</code></pre>
+<pre><code>## Call:
+## polr(formula = factor(grades) ~ sexual + pregnancy + schoolaltercation + 
+##     outsidealtercation + schoolweapon + outsideweapon + oxy + 
+##     alcohol + ciguse + marijuana + tobacco + age2 + white + black + 
+##     asian + hispanic + female, data = train)
+## 
+## Coefficients:
+##                       Value Std. Error t value
+## sexual             -0.31469    0.09424 -3.3394
+## pregnancy          -0.63709    0.20526 -3.1038
+## schoolaltercation  -0.49194    0.16529 -2.9762
+## outsidealtercation -0.26292    0.12340 -2.1306
+## schoolweapon        0.12712    0.26850  0.4734
+## outsideweapon      -0.25494    0.18014 -1.4152
+## oxy                 0.49561    0.47923  1.0342
+## alcohol            -0.07353    0.09937 -0.7399
+## ciguse             -0.74657    0.14802 -5.0438
+## marijuana          -0.56310    0.11940 -4.7161
+## tobacco             0.08399    0.29300  0.2866
+## age2                0.01437    0.03402  0.4223
+## white               0.78262    0.13948  5.6108
+## black               0.06074    0.16548  0.3671
+## asian               1.45536    0.18151  8.0179
+## hispanic            0.09062    0.14296  0.6339
+## female              0.46858    0.08244  5.6840
+## 
+## Intercepts:
+##     Value   Std. Error t value
+## 1|2 -3.9719  0.5891    -6.7418
+## 2|3 -2.0415  0.5698    -3.5826
+## 3|4 -0.2898  0.5681    -0.5101
+## 4|5  1.8399  0.5686     3.2357
+## 
+## Residual Deviance: 5399.526 
+## AIC: 5441.526</code></pre>
+<pre class="r"><code>grades&lt;- predict(m3, test)
+id &lt;- test$id 
+myPredictions&lt;- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>pR2(m3)</code></pre>
+<pre><code>##           llh       llhNull            G2      McFadden          r2ML 
+## -2.699763e+03 -2.902245e+03  4.049645e+02  6.976744e-02  1.670888e-01 
+##          r2CU 
+##  1.802009e-01</code></pre>
+<pre class="r"><code>##mean-f1: 0.7382061
+##Psuedo R-squared values:
+# McFadden: 0.3406277    
+# r2ML: 0.7186248        
+# r2CU: 0.7364225  
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
+
+##Model 4
+m4&lt;- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m4)</code></pre>
+<pre><code>## Call:
+## polr(formula = factor(grades) ~ sexual + pregnancy + ingang + 
+##     schoolaltercation + outsidealtercation + schoolweapon + outsideweapon + 
+##     oxy + alcohol + ciguse + marijuana + tobacco + age2 + white + 
+##     black + asian + hispanic + female, data = train)
+## 
+## Coefficients:
+##                       Value Std. Error t value
+## sexual             -0.31255    0.09429 -3.3148
+## pregnancy          -0.62377    0.20621 -3.0249
+## ingang             -0.18330    0.28373 -0.6460
+## schoolaltercation  -0.47835    0.16662 -2.8709
+## outsidealtercation -0.25819    0.12360 -2.0890
+## schoolweapon        0.14722    0.27036  0.5446
+## outsideweapon      -0.24421    0.18099 -1.3493
+## oxy                 0.48732    0.47861  1.0182
+## alcohol            -0.07471    0.09939 -0.7516
+## ciguse             -0.74934    0.14811 -5.0595
+## marijuana          -0.56156    0.11944 -4.7016
+## tobacco             0.09306    0.29342  0.3172
+## age2                0.01400    0.03402  0.4116
+## white               0.78283    0.13948  5.6125
+## black               0.06262    0.16551  0.3784
+## asian               1.45790    0.18156  8.0299
+## hispanic            0.09190    0.14297  0.6428
+## female              0.46555    0.08257  5.6385
+## 
+## Intercepts:
+##     Value   Std. Error t value
+## 1|2 -3.9811  0.5892    -6.7562
+## 2|3 -2.0485  0.5699    -3.5947
+## 3|4 -0.2957  0.5681    -0.5206
+## 4|5  1.8337  0.5686     3.2247
+## 
+## Residual Deviance: 5399.11 
+## AIC: 5443.11</code></pre>
+<pre class="r"><code>grades&lt;- predict(m4, test)
+id &lt;- test$id 
+myPredictions&lt;- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>pR2(m4)</code></pre>
+<pre><code>##           llh       llhNull            G2      McFadden          r2ML 
+## -2699.5547762 -2902.2452545   405.3809565     0.0698392     0.1672454 
+##          r2CU 
+##     0.1803697</code></pre>
+<pre class="r"><code>##mean-f1: 0.7313642
+##Psuedo R-squared values:
+# McFadden: 0.3537376    
+# r2ML: 0.7393928         
+# r2CU: 0.7562858 
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.</code></pre>
 </div>
 </div>
 <div id="conclusion" class="section level1">
