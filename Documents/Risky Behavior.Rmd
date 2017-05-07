@@ -24,7 +24,7 @@ The City of Somerville's Youth Risk Behavior Survey is an annual student survey 
 
 ```{r}
 setwd("/Users/mariamkhan/Desktop")
-df<- read.csv("datasurvey.csv")
+df<- read.csv("Somerville_High_School_YRBS_Raw_Data_2002-2014.csv")
 
 ###Libraries###
 library(plyr)
@@ -351,6 +351,96 @@ Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be 
 Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremely unlikely. It is suspected there may have been a problem with the data or under the hood. In general, the decision tree has been known to overfit predictive models. 
 
 ```{r}
+#Train
+fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
+summary(fittingall)
+printcp(fittingall)
+fittingall$variable.importance
+
+#default (cp = 0.01)
+fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
+summary(fit)
+printcp(fit)
+fit$variable.importance
+
+#cp = 0
+fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
+summary(fit.0)
+printcp(fit.0)
+
+#Calculate optimal
+
+#Refit with optimal
+fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
+
+#Determine which variable had the greatest influence
+fit.opt$variable.importance
+
+
+#Predict values for train 
+predict.opt.train <- predict(fit.opt, dftrain, type='class')
+predict.0.train <- predict(fit.0, dftrain, type='class')
+predict.train <- predict(fit, dftrain, type='class')
+
+input.train <- rbind(data.frame(model = "optimal", d = dftrain$grades2,  m = predict.opt.train), 
+                     data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train),
+                     data.frame(model = "default", d =  dftrain$grades2,  m = predict.train))
+
+input.trainopt <- rbind(data.frame(model = "optimal", d = dftrain$grades2, m = predict.opt.train))
+
+input.train0 <-rbind( data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train))
+
+input.traindef <-rbind( data.frame(model = "default", d = dftrain$grades2,  m = predict.train))
+
+#Predict values for test 
+predict.opt.test <- predict(fit.opt, dftest, type='class')
+predict.0.test <- predict(fit.0, dftest, type='class')
+predict.test <- predict(fit, dftest, type='class')
+
+input.test <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test), 
+                    data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test),
+                    data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+input.testopt <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test))
+
+input.test0 <-rbind(data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test))
+
+input.testdef <-rbind(data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+
+#Predict values for val
+predict.opt.val <- predict(fit.opt, dfval, type='class')
+predict.0.val <- predict(fit.0, dfval, type='class')
+predict.val <- predict(fit, dfval, type='class')
+
+input.val <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val), 
+                   data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val),
+                   data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+input.valopt <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val))
+
+input.val0 <-rbind(data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val))
+
+input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+#meanf1 
+
+#FYI meanf1 is w/o  NaNs, but all are wrongly giving 1
+
+meanf1(is.nan(input.val$d), is.nan(input.val$m))
+meanf1(is.nan(input.test$d), is.nan(input.test$m))
+meanf1(is.nan(input.train$d), is.nan(input.train$m))
+
+meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))
+meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))
+meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
+```
+
+## Random Forest
+
+Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25%. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7%. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
+
+```{r}
 #Create new dataframe with recoded variables and dependent variable
 df2 <- df[c(1:3, 12, 194:219)]
 
@@ -583,102 +673,14 @@ validate2$correct[validate2$grades2 == validate2$gradepred] <- 1
 validate2$correct[validate2$grades2 != validate2$gradepred] <- 0
 mean(validate2$correct)
 
-#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, being Asian, and marijuana use
+#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, 
+being Asian, and marijuana use.
 fit2.1$importance
 
 #RF2: Even after imputation, RF provides low predictability power
 
-#Concluding remarks: Both RF models demonstrate that age has the greatest importance, while risky behaviors such as sexual activity and marijuana use are also important.
-```
-
-## Random Forest
-
-Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25%. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7%. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
-
-```{r}
-#Train
-fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
-summary(fittingall)
-printcp(fittingall)
-fittingall$variable.importance
-
-#default (cp = 0.01)
-fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
-summary(fit)
-printcp(fit)
-fit$variable.importance
-
-#cp = 0
-fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
-summary(fit.0)
-printcp(fit.0)
-
-#Calculate optimal
-
-#Refit with optimal
-fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
-
-#Determine which variable had the greatest influence
-fit.opt$variable.importance
-
-
-#Predict values for train 
-predict.opt.train <- predict(fit.opt, dftrain, type='class')
-predict.0.train <- predict(fit.0, dftrain, type='class')
-predict.train <- predict(fit, dftrain, type='class')
-
-input.train <- rbind(data.frame(model = "optimal", d = dftrain$grades2,  m = predict.opt.train), 
-                     data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train),
-                     data.frame(model = "default", d =  dftrain$grades2,  m = predict.train))
-
-input.trainopt <- rbind(data.frame(model = "optimal", d = dftrain$grades2, m = predict.opt.train))
-
-input.train0 <-rbind( data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train))
-
-input.traindef <-rbind( data.frame(model = "default", d = dftrain$grades2,  m = predict.train))
-
-#Predict values for test 
-predict.opt.test <- predict(fit.opt, dftest, type='class')
-predict.0.test <- predict(fit.0, dftest, type='class')
-predict.test <- predict(fit, dftest, type='class')
-
-input.test <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test), 
-                    data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test),
-                    data.frame(model = "default", d = dftest$grades2,  m = predict.test))
-
-input.testopt <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test))
-
-input.test0 <-rbind(data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test))
-
-input.testdef <-rbind(data.frame(model = "default", d = dftest$grades2,  m = predict.test))
-
-
-#Predict values for val
-predict.opt.val <- predict(fit.opt, dfval, type='class')
-predict.0.val <- predict(fit.0, dfval, type='class')
-predict.val <- predict(fit, dfval, type='class')
-
-input.val <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val), 
-                   data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val),
-                   data.frame(model = "default", d = dfval$grades2,  m = predict.val))
-
-input.valopt <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val))
-
-input.val0 <-rbind(data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val))
-
-input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predict.val))
-
-#meanf1 
-
-#FYI meanf1 is w/o  NaNs, but all are wrongly giving 1
-
-meanf1(is.nan(input.val$d), is.nan(input.val$m))
-meanf1(is.nan(input.test$d), is.nan(input.test$m))
-meanf1(is.nan(input.train$d), is.nan(input.train$m))
-
-meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))
-meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))
-meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
+#Concluding remarks: Both RF models demonstrate that age has the greatest importance, 
+while risky behaviors such as sexual activity and marijuana use are also important.
 ```
 
 ## Ordered Logistic Regression
