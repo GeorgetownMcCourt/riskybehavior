@@ -335,7 +335,7 @@ Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be 
 
 ## Decision tree
 
-Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremely unlikely. It is suspected there may have been a problem with the data or under the hood. In general, the decision tree has been known to overfit predictive models. 
+For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values.  Also, we conducted a variable of importance test on all of our variables of interest. We found that sex, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We made sure to remove any variables that would be result in multicollinearity, but the Mean-F1 score was still 1. Just looking at the predicted values shows this is clearly not accurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models. 
 
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
 #Train
