@@ -70,7 +70,7 @@ Since the dependent variable had ranked categorical responses, an ordered logist
 ```{r}
 m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
           + outsideweapon +  oxy  +alcohol + ciguse + marijuana + age2 + white + black 
-          + asian + hispanic + female, data = train
+          + asian + hispanic + female, data = train)
 ```
 
 # Conclusion
