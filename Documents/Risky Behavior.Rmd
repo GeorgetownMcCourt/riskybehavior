@@ -352,26 +352,33 @@ Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremel
 
 ```{r}
 #Train
-fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
+fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself 
++ schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon 
++ outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 
++ white + asian + hispanic + otherrace + female + alcohol + marijuana 
++ heroin + meth, method = "class", data = dftrain)
 summary(fittingall)
 printcp(fittingall)
 fittingall$variable.importance
 
 #default (cp = 0.01)
-fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
+fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana 
++ ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
 summary(fit)
 printcp(fit)
 fit$variable.importance
 
 #cp = 0
-fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
+fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 
++ marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
 summary(fit.0)
 printcp(fit.0)
 
 #Calculate optimal
 
 #Refit with optimal
-fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
+fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana 
++ ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
 
 #Determine which variable had the greatest influence
 fit.opt$variable.importance
@@ -547,10 +554,12 @@ validate$correct[validate$grades2 == validate$gradepred] <- 1
 validate$correct[validate$grades2 != validate$gradepred] <- 0
 mean(validate$correct)
 
-#RF1: Variable importance; age has the most importance, followed by marijuana use, gender, sexual activity and alcohol use
+#RF1: Variable importance; age has the most importance, followed by marijuana use, 
+gender, sexual activity and alcohol use
 fit1.1$importance
 
-#RF1: Using only complete observations, RF provides low predictability power, possibly because sample is too small
+#RF1: Using only complete observations, RF provides low predictability power, 
+possibly because sample is too small
 
 #Second iteration (RF2): impute missing data on independent variables
 df3 <- df[c(1:3, 12, 194:219)]
@@ -739,7 +748,8 @@ pR2(m3)
 # McFadden: 0.3406277    
 # r2ML: 0.7186248        
 # r2CU: 0.7364225  
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and 
+marijuana are statistically significant.
 
 ##Model 4
 m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
@@ -756,7 +766,8 @@ pR2(m4)
 # McFadden: 0.3537376    
 # r2ML: 0.7393928         
 # r2CU: 0.7562858 
-##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and
+marijuana are statistically signficant.
 ```
 
 # Conclusion
