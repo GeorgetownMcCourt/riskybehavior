@@ -18,7 +18,7 @@ For several decades, the academic performance of students has been a major conce
 
 The objective of this study is to build upon the CDC research, in order to better understand how certain behaviors can impact the grades of students. These results can encourage schools to promote health and safety among students, which would help them to establish lifelong healthy behaviors. 
 
-# Data/Methodology
+# Data
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
