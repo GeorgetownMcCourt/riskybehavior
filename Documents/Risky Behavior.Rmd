@@ -57,7 +57,7 @@ Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremel
 
 ## Random Forest
 
-Two random forest models were analyzed in this study.  One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25% In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7% While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
+Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25%. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7%. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
 
 ```{r}
 
