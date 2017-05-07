@@ -9,7 +9,7 @@ Much of motivation for this project lies in the need for educational reform. We 
 ## Usage
 
 
-First, the dataset is recorded from categorical variables into dummy variables. The survey asks students how many times they have engaged in a risky behaviors in the past 30 days.  For example, the variable, cig_30, examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, recode cig_30 as a binary variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
+First, the dataset is recoded from categorical variables into dummy variables. The survey asks students how many times they have engaged in a risky behaviors in the past 30 days.  For example, the variable, cig_30, examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, recode cig_30 as a binary variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
 
 In addition, our dependent variable, skl_gra, which examines the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
