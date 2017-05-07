@@ -1,11 +1,9 @@
 #### MASTER FILE ####
 
-##Get data - NEED TO EDIT
+##Download data
 temp <- tempfile()
-download.file("https://github.com/GeorgetownMcCourt/riskybehavior/blob/master/Somerville_High_School_YRBS_Raw_Data_2002-2014.csv", temp, mode="wb")
-read.csv(temp)
-setwd("/Users/mariamkhan/Desktop")
-df<- read.csv("datasurvey.csv")
+download.file("https://raw.githubusercontent.com/GeorgetownMcCourt/riskybehavior/master/Data/Somerville_High_School_YRBS_Raw_Data_2002-2014.csv", temp, mode="wb")
+df <- read.csv(temp)
 
 ###Libraries###
 library(plyr)
