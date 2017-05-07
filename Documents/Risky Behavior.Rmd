@@ -67,11 +67,11 @@ Two random forest models were analyzed in this study.  One of the model utilized
 
 Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that the following approximate model, as indicated below, was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden's pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades. 
 
-```{r}
+### Model
+
 m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
           + outsideweapon +  oxy  +alcohol + ciguse + marijuana + age2 + white + black 
           + asian + hispanic + female, data = train)
-```
 
 # Conclusion
 
