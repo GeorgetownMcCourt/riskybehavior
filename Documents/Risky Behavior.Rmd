@@ -81,9 +81,6 @@ Among the risky behaviors, students are most likely to have engaged in sexual ac
 21.1% have used marijuana. This variable has 127 missing observations.
 0.80% have used methamphetamines. This variable has 1,513 missing observations.
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
-
-```
 # Research Strategy 
 
 First, the original dataset comes with 219 variables. Based on the CDC report, we have narrowed it down to 29 variables, which focuses specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
@@ -290,7 +287,6 @@ df$heroin[df$her_30 =="3 to 9 times"] <- 1
 df$heroin[df$her_30 =="10 to 19 times"] <- 1
 df$heroin[df$her_30 =="20 to 39 times"] <- 1
 df$heroin[df$her_30 =="40 or more times"] <- 1
-
 
 ##Meth
 df$meth[df$meth_30 =="0 times"] <- 0
