@@ -739,11 +739,10 @@ pR2(m3)
 # McFadden: 0.3406277    
 # r2ML: 0.7186248        
 # r2CU: 0.7364225  
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and 
-marijuana are statistically significant.
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
 
 ##Model 4
-m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
+m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapo
           + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
           + asian + hispanic + female, data = train)
 summary(m4)
@@ -757,8 +756,7 @@ pR2(m4)
 # McFadden: 0.3537376    
 # r2ML: 0.7393928         
 # r2CU: 0.7562858 
-##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and
-marijuana are statistically signficant.
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.
 ```
 
 # Conclusion
