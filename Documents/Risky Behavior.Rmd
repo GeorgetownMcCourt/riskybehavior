@@ -22,6 +22,41 @@ The objective of this study is to build upon the CDC research, in order to bette
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
+```{r}
+setwd("/Users/mariamkhan/Desktop")
+df<- read.csv("datasurvey.csv")
+
+###Libraries###
+library(plyr)
+library(Hmisc)
+library(MASS)
+library(pscl)
+library(randomForest)
+library(VIM)
+library(rpart)
+library(rpart.plot)
+library(ggplot2)
+library(gridExtra)
+library(plotROC)
+
+meanf1 <- function(actual, predicted){
+  #Mean F1 score function
+  #actual = a vector of actual labels
+  #predicted = predicted labels
+  classes <- unique(actual)
+  results <- data.frame()
+  for(k in classes){
+    results <- rbind(results, 
+                     data.frame(class.name = k,
+                                weight = sum(actual == k)/length(actual),
+                                precision = sum(predicted == k & actual == k)/sum(predicted == k), 
+                                recall = sum(predicted == k & actual == k)/sum(actual == k)))
+  }
+  results$score <- results$weight * 2 * (results$precision * results$recall) / (results$precision + results$recall) 
+  return(sum(results$score))
+}
+```
+
 # Descriptive statistics
 
 In terms of demographic characteristics, roughly 40.1% of students are white, 15.0% are black, 24.4% are Hispanic, 8.7% are Asian, and 11.8% identify as another race. In addition, 219 observations exhibit missingness in race. Approximately 52.4% of the sample is female, while the average age of students is 16.25. 
@@ -35,13 +70,277 @@ Among the risky behaviors, students are most likely to have engaged in sexual ac
 
 First, the original dataset comes with 219 variables. Based on the CDC report, we have narrowed it down to 29 variables, which focuses specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
 
+```{r}
+
+```
+
 Second, many of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, examines how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. In this case, chew_30 would be recoded as a dummy variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
+
+```{r}
+##Ingang
+summary(df$gang)
+df$ingang[df$gang =="Yes"] <- 1
+df$ingang[df$gang =="No"] <- 0
+count(df$ingang)
+
+##schoolaltercation
+summary(df$fit_skl)
+df$schoolaltercation[df$fit_skl =="0 times"] <- 0
+df$schoolaltercation[df$fit_skl =="1 time"] <- 1
+df$schoolaltercation[df$fit_skl =="2 or 3 times"] <- 1
+df$schoolaltercation[df$fit_skl =="4 or 5 times"] <- 1
+df$schoolaltercation[df$fit_skl =="6 or 7 times"] <- 1
+df$schoolaltercation[df$fit_skl =="8 or 9 times"] <- 1
+df$schoolaltercation[df$fit_skl =="10 or 11 times"] <- 1
+df$schoolaltercation[df$fit_skl =="12 or more times"] <- 1
+count(df$schoolaltercation)
+
+##outsidealtercation
+summary(df$fit_out)
+df$outsidealtercation[df$fit_out =="0 times"] <- 0
+df$outsidealtercation[df$fit_out =="1 time"] <- 1
+df$outsidealtercation[df$fit_out =="2 or 3 times"] <- 1
+df$outsidealtercation[df$fit_out =="4 or 5 times"] <- 1
+df$outsidealtercation[df$fit_out =="6 or 7 times"] <- 1
+df$outsidealtercation[df$fit_out =="8 or 9 times"] <- 1
+df$outsidealtercation[df$fit_out =="10 or 11 times"] <- 1
+df$outsidealtercation[df$fit_out =="12 or more times"] <- 1
+count(df$outsidealtercation)
+
+##schoolweapon
+summary(df$weap_skl)
+df$schoolweapon[df$weap_skl =="0 days"] <- 0
+df$schoolweapon[df$weap_skl =="1 day"] <- 1
+df$schoolweapon[df$weap_skl =="2 or 3 days"] <- 1
+df$schoolweapon[df$weap_skl=="4 or 5 days"] <- 1
+df$schoolweapon[df$weap_skl =="6 or more days"] <- 1
+count(df$schoolweapon)
+
+##outsideweapon
+summary(df$weap_out)
+df$outsideweapon[df$weap_out =="0 days"] <- 0
+df$outsideweapon[df$weap_out =="1 day"] <- 1
+df$outsideweapon[df$weap_out =="2 or 3 days"] <- 1
+df$outsideweapon[df$weap_out=="4 or 5 days"] <- 1
+df$outsideweapon[df$weap_out =="6 or more days"] <- 1
+count(df$outsideweapon)
+
+##hurtingself
+summary(df$hurtself)
+df$hurtingself[df$hurtself =="0 times"] <- 0
+df$hurtingself[df$hurtself =="1 or 2 times"] <- 1
+df$hurtingself[df$hurtself =="3 to 5 times"] <- 1
+df$hurtingself[df$hurtself =="6 to 9 times"] <- 1
+df$hurtingself[df$hurtself =="10 to 19 times"] <- 1
+df$hurtingself[df$hurtself =="20 or more times"] <- 1
+count(df$hurtingself)
+
+##CigUse  
+describe(df$cig_30)
+df$ciguse[df$cig_30 =="0 days"] <- 0
+df$ciguse[df$cig_30 =="1 or 2 days"] <- 1
+df$ciguse[df$cig_30 =="3 to 5 days"] <- 1
+df$ciguse[df$cig_30 =="6 to 9 days"] <- 1
+df$ciguse[df$cig_30 =="10 to 19 days"] <- 1
+df$ciguse[df$cig_30 =="20 to 29 days"] <- 1
+df$ciguse[df$cig_30 =="All 30 days"] <- 1
+describe(df$ciguse)
+
+##Tobacco 
+describe(df$chew_30)
+df$tobacco[df$chew_30 =="0 days"] <- 0
+df$tobacco[df$chew_30 =="1 or 2 days"] <- 1
+df$tobacco[df$chew_30 =="3 to 5 days"] <- 1
+df$tobacco[df$chew_30 =="6 to 9 days"] <- 1
+df$tobacco[df$chew_30 =="10 to 19 days"] <- 1
+df$tobacco[df$chew_30 =="20 to 29 days"] <- 1
+df$tobacco[df$chew_30 =="All 30 days"] <- 1
+
+##Ectasy 
+df$ecstasy[df$x_30 =="0 times"] <- 0
+df$ecstasy[df$x_30 =="1 or 2 times"] <- 1
+df$ecstasy[df$x_30 =="3 to 9 times"] <- 1
+df$ecstasy[df$x_30 =="10 to 19 times"] <- 1
+df$ecstasy[df$x_30 =="20 to 39 times"] <- 1
+df$ecstasy[df$x_30 =="40 or more times"] <- 1
+
+##Oxy 
+df$oxy[df$oxy_30 =="0 times"] <- 0
+df$oxy[df$oxy_30 =="1 or 2 times"] <- 1
+df$oxy[df$oxy_30 =="3 to 9 times"] <- 1
+df$oxy[df$oxy_30 =="10 to 19 times"] <- 1
+df$oxy[df$oxy_30 =="20 to 39 times"] <- 1
+df$oxy[df$oxy_30 =="40 or more times"] <- 1
+
+##Other
+df$otherdrug[df$oth_30 =="0 times"] <- 0
+df$otherdrug[df$oth_30 =="1 or 2 times"] <- 1
+df$otherdrug[df$oth_30 =="3 to 9 times"] <- 1
+df$otherdrug[df$oth_30 =="10 to 19 times"] <- 1
+df$otherdrug[df$oth_30 =="20 to 39 times"] <- 1
+df$otherdrug[df$oth_30 =="40 or more times"] <- 1
+
+##Sexual 
+df$sexual[df$sex_ever =="No"] <- 0
+df$sexual[df$sex_ever =="Yes"] <- 1
+
+##Pregnancy
+df$pregnancy[df$pregnant =="No"] <- 0
+df$pregnancy[df$pregnant =="I have never had sexual intercourse"] <- 0
+df$pregnancy[df$pregnant =="Yes"] <- 1
+
+##Alcohol
+describe(df$alc_30)
+df$alcohol[df$alc_30 =="0 days"] <- 0
+df$alcohol[df$alc_30 =="1 or 2 days"] <- 1
+df$alcohol[df$alc_30 =="3 to 5 days"] <- 1
+df$alcohol[df$alc_30 =="6 to 9 days"] <- 1
+df$alcohol[df$alc_30 =="10 to 19 days"] <- 1
+df$alcohol[df$alc_30 =="20 to 29 days"] <- 1
+df$alcohol[df$alc_30 =="All 30 days"] <- 1
+describe(df$alcohol)
+
+##Marijuana
+describe(df$pot_30)
+df$marijuana[df$pot_30 =="0 times"] <- 0
+df$marijuana[df$pot_30 =="1 or 2 times"] <- 1
+df$marijuana[df$pot_30 =="3 to 9 times"] <- 1
+df$marijuana[df$pot_30 =="10 to 19 times"] <- 1
+df$marijuana[df$pot_30 =="20 to 39 times"] <- 1
+df$marijuana[df$pot_30 =="40 or more times"] <- 1
+describe(df$marijuana)
+
+##Heroin
+describe(df$her_30)
+df$heroin[df$her_30 =="0 times"] <- 0
+df$heroin[df$her_30 =="1 or 2 times"] <- 1
+df$heroin[df$her_30 =="3 to 9 times"] <- 1
+df$heroin[df$her_30 =="10 to 19 times"] <- 1
+df$heroin[df$her_30 =="20 to 39 times"] <- 1
+df$heroin[df$her_30 =="40 or more times"] <- 1
+describe(df$heroin)
+
+##Meth
+describe(df$meth_30)
+df$meth[df$meth_30 =="0 times"] <- 0
+df$meth[df$meth_30 =="1 or 2 times"] <- 1
+df$meth[df$meth_30 =="3 to 9 times"] <- 1
+df$meth[df$meth_30 =="10 to 19 times"] <- 1
+df$meth[df$meth_30 =="20 to 39 times"] <- 1
+df$meth[df$meth_30 =="40 or more times"] <- 1
+describe(df$meth)
+```
 
 In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0. 
 
+```{r}
+#Race = White
+df$white[df$race=="White"] <- 1
+df$white[df$race=="American Indian or Alaska Native"] <- 0
+df$white[df$race=="Asian or other Pacific Islander"] <- 0
+df$white[df$race=="Black"] <- 0
+df$white[df$race=="Hispanic or Latino"] <- 0
+df$white[df$race=="Other"] <- 0
+
+#Race = Black
+df$black[df$race=="White"] <- 0
+df$black[df$race=="American Indian or Alaska Native"] <- 0
+df$black[df$race=="Asian or other Pacific Islander"] <- 0
+df$black[df$race=="Black"] <- 1
+df$black[df$race=="Hispanic or Latino"] <- 0
+df$black[df$race=="Other"] <- 0
+
+#Race = Asian
+df$asian[df$race=="White"] <- 0
+df$asian[df$race=="American Indian or Alaska Native"] <- 0
+df$asian[df$race=="Asian or other Pacific Islander"] <- 1
+df$asian[df$race=="Black"] <- 0
+df$asian[df$race=="Hispanic or Latino"] <- 0
+df$asian[df$race=="Other"] <- 0
+
+#Race = Hispanic
+df$hispanic[df$race=="White"] <- 0
+df$hispanic[df$race=="American Indian or Alaska Native"] <- 0
+df$hispanic[df$race=="Asian or other Pacific Islander"] <- 0
+df$hispanic[df$race=="Black"] <- 0
+df$hispanic[df$race=="Hispanic or Latino"] <- 1
+df$hispanic[df$race=="Other"] <- 0
+
+#Race = Other
+df$otherrace[df$race=="White"] <- 0
+df$otherrace[df$race=="American Indian or Alaska Native"] <- 1
+df$otherrace[df$race=="Asian or other Pacific Islander"] <- 0
+df$otherrace[df$race=="Black"] <- 0
+df$otherrace[df$race=="Hispanic or Latino"] <- 0
+df$otherrace[df$race=="Other"] <- 1
+
+##Gender
+df$female[df$GENDER=="Male"] <- 0
+df$female[df$GENDER=="Female"] <- 1
+
+##Age
+#Note that age variable is left and right censored
+df$age2[df$age=="13 years old or younger"] <- 13
+df$age2[df$age=="14 years old"] <- 14
+df$age2[df$age=="15 years old"] <- 15
+df$age2[df$age=="16 years old"] <- 16
+df$age2[df$age=="17 years old"] <- 17
+df$age2[df$age=="18 years old or older"] <- 18
+```
+
 Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
+```{r}
+##Grades
+summary(df$skl_gra)
+df$grades[df$skl_gra =="Mostly A's"] <- 5
+df$grades[df$skl_gra =="Mostly B's"] <- 4
+df$grades[df$skl_gra =="Mostly C's"] <- 3
+df$grades[df$skl_gra =="Mostly D's"] <- 2
+df$grades[df$skl_gra =="Mostly E's or F's"] <- 1
+count(df$grades)
+
+##Grades option 2
+df$grades2[df$skl_gra =="Mostly A's"] <- "Mostly A's"
+df$grades2[df$skl_gra =="Mostly B's"] <- "Mostly B's"
+df$grades2[df$skl_gra =="Mostly C's"] <- "Mostly C's"
+df$grades2[df$skl_gra =="Mostly D's"] <- "Mostly D's"
+df$grades2[df$skl_gra =="Mostly E's or F's"] <- "Mostly E's or F's"
+count(df$grades2)
+```
+
 Third, the dataset is divided into a 70-15-15 partition. 
+
+```{r}
+###New data frame
+df2 <- df[c(1:3, 12, 194:219)]
+
+#Remove observations where grades2=NA
+df2 <- subset(df2, !is.na(grades2))
+
+#Summary statistics
+summary(df2)
+
+###Partition###
+library(dplyr)
+
+#Option 1 
+dftrain <- df[sample(nrow(df), 
+                     size = round(0.7*nrow(df)),
+                     replace = F),]
+dftest <- anti_join(df, dftrain, by = "id")
+dfval <- dftest[sample(nrow(dftest), 
+                       size = round(0.5*nrow(dftest)),
+                       replace = F),]
+dftest <- anti_join(dftest, dfval, by = "id")
+
+#Option 2
+set.seed(100)
+rand <- runif(nrow(df2))
+train <- df2[rand > 0.3,]
+validate <- df2[rand > 0.15 & rand <= 0.3,]
+test <- df2[rand <= 0.15,]
+```
 
 Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be used in predicting the actual grades of students. The Mean-F1 and the AUC value will be taken into consideration, when determining the optimal technique. 
 
@@ -52,7 +351,244 @@ Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be 
 Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremely unlikely. It is suspected there may have been a problem with the data or under the hood. In general, the decision tree has been known to overfit predictive models. 
 
 ```{r}
+#Create new dataframe with recoded variables and dependent variable
+df2 <- df[c(1:3, 12, 194:219)]
 
+#First iteration (RF1): include only observations with complete data
+df2 <- df2[complete.cases(df2),]
+
+#RF1: 70-15-15 partition
+set.seed(100)
+rand <- runif(nrow(df2))
+train <- df2[rand > 0.3,]
+validate <- df2[rand > 0.15 & rand <= 0.3,]
+test <- df2[rand <= 0.15,]
+
+#RF1: Include all variables
+train$grades2 <- factor(train$grades2)
+fit1.0 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train)
+
+#RF1: Diagnostics
+fit1.0
+print(importance(fit1.0, type = 2))
+plot(fit1.0)
+
+#RF1: OOB error = 56.25%, tune model
+fittune1.0 <- tuneRF(train[,-(1:6)], train$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                     improve = 0.001, trace = TRUE, plot = TRUE)
+fittune1.0
+
+#RF1: Four variables per split minimizes OOB error; tuning model
+fit1.1 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train, mtry=4)
+fit1.1
+
+#RF1: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+pred.rf.train <- predict(fit1.1, train, type='prob')
+pred.rf.test <- predict(fit1.1, test, type='prob')
+input.rf <- rbind(data.frame(model = "train", d = train$grades2, m = pred.rf.train),
+                  data.frame(model = "test", d = test$grades2, m = pred.rf.test))
+
+#RF1: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.6766
+a <- input.rf
+a$d <- as.factor(a$d)
+revalue(a$d, c("Mostly B's" = "Not A's")) -> a$d
+revalue(a$d, c("Mostly C's" = "Not A's")) -> a$d
+revalue(a$d, c("Mostly D's" = "Not A's")) -> a$d
+revalue(a$d, c("Mostly E's or F's" = "Not A's")) -> a$d
+roc.rf <- ggplot(a, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf)
+
+#RF1: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.301
+b <- input.rf
+b$d <- as.factor(b$d)
+revalue(b$d, c("Mostly A's" = "Not B's")) -> b$d
+revalue(b$d, c("Mostly C's" = "Not B's")) -> b$d
+revalue(b$d, c("Mostly D's" = "Not B's")) -> b$d
+revalue(b$d, c("Mostly E's or F's" = "Not B's")) -> b$d
+roc.rf2 <- ggplot(b, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf2)
+
+#RF1: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.236
+c <- input.rf
+c$d <- as.factor(c$d)
+revalue(c$d, c("Mostly A's" = "Not C's")) -> c$d
+revalue(c$d, c("Mostly B's" = "Not C's")) -> c$d
+revalue(c$d, c("Mostly D's" = "Not C's")) -> c$d
+revalue(c$d, c("Mostly E's or F's" = "Not C's")) -> c$d
+roc.rf3 <- ggplot(c, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf3)
+
+#RF1: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.188
+d <- input.rf
+d$d <- as.factor(d$d)
+revalue(d$d, c("Mostly A's" = "Not D's")) -> d$d
+revalue(d$d, c("Mostly B's" = "Not D's")) -> d$d
+revalue(d$d, c("Mostly C's" = "Not D's")) -> d$d
+revalue(d$d, c("Mostly E's or F's" = "Not D's")) -> d$d
+roc.rf4 <- ggplot(d, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf4)
+
+#RF1: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.142
+e <- input.rf
+e$d <- as.factor(e$d)
+revalue(e$d, c("Mostly A's" = "Not E's")) -> e$d
+revalue(e$d, c("Mostly B's" = "Not E's")) -> e$d
+revalue(e$d, c("Mostly C's" = "Not E's")) -> e$d
+revalue(e$d, c("Mostly D's" = "Not E's")) -> e$d
+roc.rf5 <- ggplot(e, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf5)
+
+#RF1: Predict activity for validate sample; only 43.5% were correctly classified using RF1
+validate$gradepred <- predict(fit1.1, validate, type='class')
+validate$correct[validate$grades2 == validate$gradepred] <- 1
+validate$correct[validate$grades2 != validate$gradepred] <- 0
+mean(validate$correct)
+
+#RF1: Variable importance; age has the most importance, followed by marijuana use, gender, sexual activity and alcohol use
+fit1.1$importance
+
+#RF1: Using only complete observations, RF provides low predictability power, possibly because sample is too small
+
+#Second iteration (RF2): impute missing data on independent variables
+df3 <- df[c(1:3, 12, 194:219)]
+
+#RF2: Include only observations without missing values for grade, race, gender and age
+df3 <- df3[!is.na(df3[,6]),]
+df3 <- df3[!is.na(df3[,20]),]
+df3 <- df3[!is.na(df3[,21]),]
+df3 <- df3[!is.na(df3[,26]),]
+
+#RF2: View summary of NA values
+summary(df3)
+
+#RF2: Remove additional columns, impute values; some warnings appear (NAs introduced by coercion)
+df4 <- df3[-c(1:5)]
+#It should be noted that this following code may take 5 to 10 minutes
+df5 <- kNN(df4, variable = c(2:14, 22:25), k=5)
+summary(df5)
+
+#RF2: Create new data frame of only variables
+df6 <- df5[c(1:25)]
+
+#RF2: 70-15-15 partition
+set.seed(100)
+rand <- runif(nrow(df6))
+train2 <- df6[rand > 0.3,]
+validate2 <- df6[rand > 0.15 & rand <= 0.3,]
+test2 <- df6[rand <= 0.15,]
+
+#RF2: Include all variables
+train2$grades2 <- factor(train2$grades2)
+fit2.0 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train2)
+
+#RF2: Diagnostics
+fit2.0
+print(importance(fit2.0, type = 2))
+plot(fit2.0)
+
+#RF2: OOB error = 56.7%, tune model
+fittune2.0 <- tuneRF(train2[c(2:25)], train2$grades2, ntreeTry = 500, mtryStart = 1, stepFactor = 2,
+                     improve = 0.001, trace = TRUE, plot = TRUE)
+fittune2.0
+
+#RF2: Two variables per split minimizes OOB error; tuning model
+fit2.1 <- randomForest(grades2 ~ ingang + schoolaltercation + outsidealtercation
+                       + schoolweapon + outsideweapon + hurtingself + ciguse + tobacco
+                       + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white 
+                       + black + asian + hispanic + otherrace + female + alcohol + marijuana
+                       + heroin + meth, data = train2, mtry=2)
+fit2.1
+
+#RF2: Unfortunately, the OOB error is still fairly high, but we will test the model anyway
+pred.rf.train2 <- predict(fit2.1, train2, type='prob')
+pred.rf.test2 <- predict(fit2.1, test2, type='prob')
+input.rf2 <- rbind(data.frame(model = "train", d = train2$grades2, m = pred.rf.train2),
+                   data.frame(model = "test", d = test2$grades2, m = pred.rf.test2))
+
+#RF2: Plot ROC for grade = Mostly A's; resulting plot switches axis of Mostly A's and not A's; test AUC = 0.611
+a2 <- input.rf2
+a2$d <- as.factor(a2$d)
+revalue(a2$d, c("Mostly B's" = "Not A's")) -> a2$d
+revalue(a2$d, c("Mostly C's" = "Not A's")) -> a2$d
+revalue(a2$d, c("Mostly D's" = "Not A's")) -> a2$d
+revalue(a2$d, c("Mostly E's or F's" = "Not A's")) -> a2$d
+roc.rf6 <- ggplot(a2, aes(d = d, model = model, m = m.Mostly.A.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf6)
+
+#RF2: Plot ROC for grade = Mostly B's; resulting plot switches axis of Mostly B's and not B's; test AUC = 0.366
+b2 <- input.rf2
+b2$d <- as.factor(b2$d)
+revalue(b2$d, c("Mostly A's" = "Not B's")) -> b2$d
+revalue(b2$d, c("Mostly C's" = "Not B's")) -> b2$d
+revalue(b2$d, c("Mostly D's" = "Not B's")) -> b2$d
+revalue(b2$d, c("Mostly E's or F's" = "Not B's")) -> b2$d
+roc.rf7 <- ggplot(b2, aes(d = d, model = model, m = m.Mostly.B.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf7)
+
+#RF2: Plot ROC for grade = Mostly C's; resulting plot switches axis of Mostly C's and not C's; test AUC = 0.315
+c2 <- input.rf2
+c2$d <- as.factor(c2$d)
+revalue(c2$d, c("Mostly A's" = "Not C's")) -> c2$d
+revalue(c2$d, c("Mostly B's" = "Not C's")) -> c2$d
+revalue(c2$d, c("Mostly D's" = "Not C's")) -> c2$d
+revalue(c2$d, c("Mostly E's or F's" = "Not C's")) -> c2$d
+roc.rf8 <- ggplot(c2, aes(d = d, model = model, m = m.Mostly.C.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf8)
+
+#RF2: Plot ROC for grade = Mostly D's; resulting plot switches axis of Mostly D's and not D's; test AUC = 0.237
+d2 <- input.rf2
+d2$d <- as.factor(d2$d)
+revalue(d2$d, c("Mostly A's" = "Not D's")) -> d2$d
+revalue(d2$d, c("Mostly B's" = "Not D's")) -> d2$d
+revalue(d2$d, c("Mostly C's" = "Not D's")) -> d2$d
+revalue(d2$d, c("Mostly E's or F's" = "Not D's")) -> d2$d
+roc.rf9 <- ggplot(d2, aes(d = d, model = model, m = m.Mostly.D.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf9)
+
+#RF2: Plot ROC for grade = Mostly E's or F's; resulting plot switches axis; test AUC = 0.106
+e2 <- input.rf2
+e2$d <- as.factor(e2$d)
+revalue(e2$d, c("Mostly A's" = "Not E's")) -> e2$d
+revalue(e2$d, c("Mostly B's" = "Not E's")) -> e2$d
+revalue(e2$d, c("Mostly C's" = "Not E's")) -> e2$d
+revalue(e2$d, c("Mostly D's" = "Not E's")) -> e2$d
+roc.rf10 <- ggplot(e2, aes(d = d, model = model, m = m.Mostly.E.s.or.F.s, colour = model)) +
+  geom_roc(show.legend = TRUE) + style_roc() + ggtitle("Train")
+calc_auc(roc.rf10)
+
+#RF2: Predict activity for validate sample; only 42.7% were correctly classified using RF2 via imputation
+validate2$gradepred <- predict(fit2.1, validate2, type='class')
+validate2$correct[validate2$grades2 == validate2$gradepred] <- 1
+validate2$correct[validate2$grades2 != validate2$gradepred] <- 0
+mean(validate2$correct)
+
+#RF2: Variable importance; age has the most importance, followed by sexual activity, gender, cigarette use, being Asian, and marijuana use
+fit2.1$importance
+
+#RF2: Even after imputation, RF provides low predictability power
+
+#Concluding remarks: Both RF models demonstrate that age has the greatest importance, while risky behaviors such as sexual activity and marijuana use are also important.
 ```
 
 ## Random Forest
@@ -60,17 +596,171 @@ Unfortunately, the decision tree yielded a Mean-F1 score of 1, which is extremel
 Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25%. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7%. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
 
 ```{r}
+#Train
+fittingall <- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon + outsideweapon + ecstasy + oxy + otherdrug + sexual + pregnancy + age2 + white + asian + hispanic + otherrace + female + alcohol + marijuana + heroin + meth, method = "class", data = dftrain)
+summary(fittingall)
+printcp(fittingall)
+fittingall$variable.importance
 
+#default (cp = 0.01)
+fit <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain)
+summary(fit)
+printcp(fit)
+fit$variable.importance
+
+#cp = 0
+fit.0 <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0)
+summary(fit.0)
+printcp(fit.0)
+
+#Calculate optimal
+
+#Refit with optimal
+fit.opt <- rpart(grades2 ~ sexual + alcohol + female + age2 + marijuana + ciguse + pregnancy + tobacco + otherrace, method = "class", data = dftrain, cp = 0.015765)
+
+#Determine which variable had the greatest influence
+fit.opt$variable.importance
+
+
+#Predict values for train 
+predict.opt.train <- predict(fit.opt, dftrain, type='class')
+predict.0.train <- predict(fit.0, dftrain, type='class')
+predict.train <- predict(fit, dftrain, type='class')
+
+input.train <- rbind(data.frame(model = "optimal", d = dftrain$grades2,  m = predict.opt.train), 
+                     data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train),
+                     data.frame(model = "default", d =  dftrain$grades2,  m = predict.train))
+
+input.trainopt <- rbind(data.frame(model = "optimal", d = dftrain$grades2, m = predict.opt.train))
+
+input.train0 <-rbind( data.frame(model = "CP = 0", d = dftrain$grades2,  m = predict.0.train))
+
+input.traindef <-rbind( data.frame(model = "default", d = dftrain$grades2,  m = predict.train))
+
+#Predict values for test 
+predict.opt.test <- predict(fit.opt, dftest, type='class')
+predict.0.test <- predict(fit.0, dftest, type='class')
+predict.test <- predict(fit, dftest, type='class')
+
+input.test <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test), 
+                    data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test),
+                    data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+input.testopt <- rbind(data.frame(model = "optimal", d = dftest$grades2, m = predict.opt.test))
+
+input.test0 <-rbind(data.frame(model = "CP = 0", d = dftest$grades2,  m = predict.0.test))
+
+input.testdef <-rbind(data.frame(model = "default", d = dftest$grades2,  m = predict.test))
+
+
+#Predict values for val
+predict.opt.val <- predict(fit.opt, dfval, type='class')
+predict.0.val <- predict(fit.0, dfval, type='class')
+predict.val <- predict(fit, dfval, type='class')
+
+input.val <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val), 
+                   data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val),
+                   data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+input.valopt <- rbind(data.frame(model = "optimal", d = dfval$grades2, m = predict.opt.val))
+
+input.val0 <-rbind(data.frame(model = "CP = 0", d = dfval$grades2,  m = predict.0.val))
+
+input.valdef <-rbind(data.frame(model = "default", d = dfval$grades2,  m = predict.val))
+
+#meanf1 
+
+#FYI meanf1 is w/o  NaNs, but all are wrongly giving 1
+
+meanf1(is.nan(input.val$d), is.nan(input.val$m))
+meanf1(is.nan(input.test$d), is.nan(input.test$m))
+meanf1(is.nan(input.train$d), is.nan(input.train$m))
+
+meanf1(is.nan(input.traindef$d), is.nan(input.traindef$m))
+meanf1(is.nan(input.valdef$d), is.nan(input.valdef$m))
+meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
 ```
 
 ## Ordered Logistic Regression
 
-Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that the following approximate model, as indicated below, was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden's pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades. 
+Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1, as indicated below, was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden's pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades. 
 
+
+```{r}
+##Model 1
+m1<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy  + +alcohol + ciguse + marijuana + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m1)
+grades<- predict(m1, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
+pR2(m1)
+##mean-f1: 0.742487
+##Psuedo R-squared values:
+# McFadden: 0.3381522    
+# r2ML:  0.7145596        
+# r2CU: 0.7325338 
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant. 
+
+##Model 2
+m2<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
+          + outsideweapon +  oxy+alcohol + ciguse + marijuana + hurtingself + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m2)
+grades<- predict(m2, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
+pR2(m2)
+##mean-f1:0.551699
+##Psuedo R-squared values:
+# McFadden: 0.5891756     
+# r2ML: 0.9693411       
+# r2CU: 0.9719647  
+##Sexual, pregnancy, school altercation, ciguse and marijuana are statistically significant.
+
+
+##Model 3
+m3<- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation +schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m3)
+grades<- predict(m3, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
+pR2(m3)
+##mean-f1: 0.7382061
+##Psuedo R-squared values:
+# McFadden: 0.3406277    
+# r2ML: 0.7186248        
+# r2CU: 0.7364225  
+##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
+
+##Model 4
+m4<- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
+          + outsideweapon +  oxy  + alcohol + ciguse +  marijuana + tobacco + age2 + white + black 
+          + asian + hispanic + female, data = train)
+summary(m4)
+grades<- predict(m4, test)
+id <- test$id 
+myPredictions<- cbind.data.frame(id, grades)
+meanf1(is.na(test$grades), is.na(myPredictions$grades))
+pR2(m4)
+##mean-f1: 0.7313642
+##Psuedo R-squared values:
+# McFadden: 0.3537376    
+# r2ML: 0.7393928         
+# r2CU: 0.7562858 
+##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.
+```
 
 # Conclusion
 
 Overall, random forest and ordered logistic regression are preferred, however, there is low predictability power. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers. 
+
 
 # Application in the Real World 
 
