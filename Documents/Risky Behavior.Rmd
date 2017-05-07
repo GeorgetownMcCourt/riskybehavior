@@ -72,7 +72,28 @@ First, the original dataset comes with 219 variables. Based on the CDC report, w
 
 Second, many of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, examines how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. In this case, chew_30 would be recoded as a dummy variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
 
+In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0. 
+
+Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
+
 ```{r}
+##Grades
+summary(df$skl_gra)
+df$grades[df$skl_gra =="Mostly A's"] <- 5
+df$grades[df$skl_gra =="Mostly B's"] <- 4
+df$grades[df$skl_gra =="Mostly C's"] <- 3
+df$grades[df$skl_gra =="Mostly D's"] <- 2
+df$grades[df$skl_gra =="Mostly E's or F's"] <- 1
+count(df$grades)
+
+##Grades option 2
+df$grades2[df$skl_gra =="Mostly A's"] <- "Mostly A's"
+df$grades2[df$skl_gra =="Mostly B's"] <- "Mostly B's"
+df$grades2[df$skl_gra =="Mostly C's"] <- "Mostly C's"
+df$grades2[df$skl_gra =="Mostly D's"] <- "Mostly D's"
+df$grades2[df$skl_gra =="Mostly E's or F's"] <- "Mostly E's or F's"
+count(df$grades2)
+
 ##Ingang
 summary(df$gang)
 df$ingang[df$gang =="Yes"] <- 1
@@ -185,51 +206,17 @@ df$pregnancy[df$pregnant =="No"] <- 0
 df$pregnancy[df$pregnant =="I have never had sexual intercourse"] <- 0
 df$pregnancy[df$pregnant =="Yes"] <- 1
 
-##Alcohol
-describe(df$alc_30)
-df$alcohol[df$alc_30 =="0 days"] <- 0
-df$alcohol[df$alc_30 =="1 or 2 days"] <- 1
-df$alcohol[df$alc_30 =="3 to 5 days"] <- 1
-df$alcohol[df$alc_30 =="6 to 9 days"] <- 1
-df$alcohol[df$alc_30 =="10 to 19 days"] <- 1
-df$alcohol[df$alc_30 =="20 to 29 days"] <- 1
-df$alcohol[df$alc_30 =="All 30 days"] <- 1
-describe(df$alcohol)
+##Age
+#Note that age variable is left and right censored
+df$age2[df$age=="13 years old or younger"] <- 13
+df$age2[df$age=="14 years old"] <- 14
+df$age2[df$age=="15 years old"] <- 15
+df$age2[df$age=="16 years old"] <- 16
+df$age2[df$age=="17 years old"] <- 17
+df$age2[df$age=="18 years old or older"] <- 18
 
-##Marijuana
-describe(df$pot_30)
-df$marijuana[df$pot_30 =="0 times"] <- 0
-df$marijuana[df$pot_30 =="1 or 2 times"] <- 1
-df$marijuana[df$pot_30 =="3 to 9 times"] <- 1
-df$marijuana[df$pot_30 =="10 to 19 times"] <- 1
-df$marijuana[df$pot_30 =="20 to 39 times"] <- 1
-df$marijuana[df$pot_30 =="40 or more times"] <- 1
-describe(df$marijuana)
+##Race
 
-##Heroin
-describe(df$her_30)
-df$heroin[df$her_30 =="0 times"] <- 0
-df$heroin[df$her_30 =="1 or 2 times"] <- 1
-df$heroin[df$her_30 =="3 to 9 times"] <- 1
-df$heroin[df$her_30 =="10 to 19 times"] <- 1
-df$heroin[df$her_30 =="20 to 39 times"] <- 1
-df$heroin[df$her_30 =="40 or more times"] <- 1
-describe(df$heroin)
-
-##Meth
-describe(df$meth_30)
-df$meth[df$meth_30 =="0 times"] <- 0
-df$meth[df$meth_30 =="1 or 2 times"] <- 1
-df$meth[df$meth_30 =="3 to 9 times"] <- 1
-df$meth[df$meth_30 =="10 to 19 times"] <- 1
-df$meth[df$meth_30 =="20 to 39 times"] <- 1
-df$meth[df$meth_30 =="40 or more times"] <- 1
-describe(df$meth)
-```
-
-In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0. 
-
-```{r}
 #Race = White
 df$white[df$race=="White"] <- 1
 df$white[df$race=="American Indian or Alaska Native"] <- 0
@@ -274,35 +261,47 @@ df$otherrace[df$race=="Other"] <- 1
 df$female[df$GENDER=="Male"] <- 0
 df$female[df$GENDER=="Female"] <- 1
 
-##Age
-#Note that age variable is left and right censored
-df$age2[df$age=="13 years old or younger"] <- 13
-df$age2[df$age=="14 years old"] <- 14
-df$age2[df$age=="15 years old"] <- 15
-df$age2[df$age=="16 years old"] <- 16
-df$age2[df$age=="17 years old"] <- 17
-df$age2[df$age=="18 years old or older"] <- 18
-```
+##Alcohol
+describe(df$alc_30)
+df$alcohol[df$alc_30 =="0 days"] <- 0
+df$alcohol[df$alc_30 =="1 or 2 days"] <- 1
+df$alcohol[df$alc_30 =="3 to 5 days"] <- 1
+df$alcohol[df$alc_30 =="6 to 9 days"] <- 1
+df$alcohol[df$alc_30 =="10 to 19 days"] <- 1
+df$alcohol[df$alc_30 =="20 to 29 days"] <- 1
+df$alcohol[df$alc_30 =="All 30 days"] <- 1
+describe(df$alcohol)
 
-Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
+##Marijuana
+describe(df$pot_30)
+df$marijuana[df$pot_30 =="0 times"] <- 0
+df$marijuana[df$pot_30 =="1 or 2 times"] <- 1
+df$marijuana[df$pot_30 =="3 to 9 times"] <- 1
+df$marijuana[df$pot_30 =="10 to 19 times"] <- 1
+df$marijuana[df$pot_30 =="20 to 39 times"] <- 1
+df$marijuana[df$pot_30 =="40 or more times"] <- 1
+describe(df$marijuana)
 
-```{r}
-##Grades
-summary(df$skl_gra)
-df$grades[df$skl_gra =="Mostly A's"] <- 5
-df$grades[df$skl_gra =="Mostly B's"] <- 4
-df$grades[df$skl_gra =="Mostly C's"] <- 3
-df$grades[df$skl_gra =="Mostly D's"] <- 2
-df$grades[df$skl_gra =="Mostly E's or F's"] <- 1
-count(df$grades)
+##Heroin
+describe(df$her_30)
+df$heroin[df$her_30 =="0 times"] <- 0
+df$heroin[df$her_30 =="1 or 2 times"] <- 1
+df$heroin[df$her_30 =="3 to 9 times"] <- 1
+df$heroin[df$her_30 =="10 to 19 times"] <- 1
+df$heroin[df$her_30 =="20 to 39 times"] <- 1
+df$heroin[df$her_30 =="40 or more times"] <- 1
+describe(df$heroin)
 
-##Grades option 2
-df$grades2[df$skl_gra =="Mostly A's"] <- "Mostly A's"
-df$grades2[df$skl_gra =="Mostly B's"] <- "Mostly B's"
-df$grades2[df$skl_gra =="Mostly C's"] <- "Mostly C's"
-df$grades2[df$skl_gra =="Mostly D's"] <- "Mostly D's"
-df$grades2[df$skl_gra =="Mostly E's or F's"] <- "Mostly E's or F's"
-count(df$grades2)
+##Meth
+describe(df$meth_30)
+df$meth[df$meth_30 =="0 times"] <- 0
+df$meth[df$meth_30 =="1 or 2 times"] <- 1
+df$meth[df$meth_30 =="3 to 9 times"] <- 1
+df$meth[df$meth_30 =="10 to 19 times"] <- 1
+df$meth[df$meth_30 =="20 to 39 times"] <- 1
+df$meth[df$meth_30 =="40 or more times"] <- 1
+describe(df$meth)
+
 ```
 
 Third, the dataset is divided into a 70-15-15 partition. 
