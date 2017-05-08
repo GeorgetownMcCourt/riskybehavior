@@ -25,7 +25,7 @@ The City of Somerville's Youth Risk Behavior Survey is an annual student survey 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ##Download data
 temp <- tempfile()
-download.file("https://raw.githubusercontent.com/GeorgetownMcCourt/riskybehavior/master/Data/Somerville_High_School_YRBS_Raw_Data_2002- 2014.csv", temp, mode="wb")
+download.file("https://raw.githubusercontent.com/GeorgetownMcCourt/riskybehavior/master/Data/Somerville_High_School_YRBS_Raw_Data_2002-2014.csv", temp, mode="wb")
 df <- read.csv(temp)
 
 ###Libraries###
