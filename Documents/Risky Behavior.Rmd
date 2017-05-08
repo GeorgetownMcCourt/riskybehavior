@@ -16,15 +16,17 @@ subtitle: How do risky behaviors predict student academic achievement?
 
 For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Centers for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health-risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation. 
 
-The objective of this study is to build upon the CDC research, in order to better understand how certain behaviors can impact the grades of students. These results can encourage schools to promote health and safety among students, which would help them to establish lifelong healthy behaviors. 
+The objective of this study is to build upon the CDC research in order to better understand how certain behaviors may impact student grades. These results can encourage schools to promote health and safety among students, which would in turn enable students to establish lifelong healthy behaviors. 
 
 # Data
 
 The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
-setwd("/Users/mariamkhan/Desktop")
-df<- read.csv("Somerville_High_School_YRBS_Raw_Data_2002-2014.csv")
+##Download data
+temp <- tempfile()
+download.file("https://raw.githubusercontent.com/GeorgetownMcCourt/riskybehavior/master/Data/Somerville_High_School_YRBS_Raw_Data_2002- 2014.csv", temp, mode="wb")
+df <- read.csv(temp)
 
 ###Libraries###
 library(plyr)
@@ -63,33 +65,49 @@ In terms of demographic characteristics, roughly 40.1 percent of students are Wh
 
 Among the risky behaviors, students are most likely to have engaged in sexual activity or consumed alcohol. Some of the variables exhibit considerable missingness, including variables related to hurting oneself, gang affiliation, altercations, and drug use. The variables are summarized below. Among students who responded yes or no to each question:
 
-4.24% are in a gang. This variable has 1,705 missing observations.
+4.24% are in a gang. This variable has 1,705 missing observations. 
+
 10.79% engaged in an in-school altercation. This variable has 1,507 missing observations.
+
 19.77% engaged in an out-of-school altercation. This variable has 1,513 missing observations.
+
 4.86% carried a weapon in school. This variable has 1,501 missing observations.
+
 10.82% carried a weapon outside of school. This variable has 1,506 missing observations.
+
 13.70% injured themselves on purpose. This variable has 3,882 missing observations.
+
 14.64% smoked cigarettes. This variable has 102 missing observations.
+
 2.02% used other tobacco. This variable has 150 missing observations.
+
 2.31% used ecstasy. This variable has 1,516 missing observations.
+
 1.59% used oxycontin. This variable has 1,535 missing observations.
+
 2.19% engaged in other drug use. This variable has 1,535 missing observations.
+
 47.21% engaged in sexual activity. This variable has 307 missing observations.
+
 5.24% have been pregnant or gotten someone pregnant. This variable has 425 missing observations.
+
 35.6% have consumed alcohol. This variable has 98 missing observations.
+
 0.49% have used heroin. This variable has 1,510 missing observations.
+
 21.1% have used marijuana. This variable has 127 missing observations.
+
 0.80% have used methamphetamines. This variable has 1,513 missing observations.
 
 # Research Strategy 
 
-First, the original dataset comes with 219 variables. Based on the CDC report, we have narrowed it down to 29 variables, which focuses specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
+The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
 
-Second, many of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, examines how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. In this case, chew_30 would be recoded as a dummy variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
+Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never smoked a cigarette were coded as a 0, while respondents who have smoked a cigarette at least once were coded as a 1.
 
-In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0. 
+The race variable was also recoded into dummy variables. For example, if the respondent identified as Asian, we coded Asian = 1 and likewise, if the respondent did not identify as Asian, we recoded as Asian = 0. 
 
-Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
+The dependent variable, skl_gra, was recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ##Grades
@@ -330,7 +348,7 @@ validate <- df2[rand > 0.15 & rand <= 0.3,]
 test <- df2[rand <= 0.15,]
 ```
 
-Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be used in predicting the actual grades of students. The Mean-F1 and the AUC value will be taken into consideration, when determining the optimal technique. 
+We employed methodologies such as Decision Trees, Random Forest, and Ordered Logistic Regression to assess whether any of the independent variables can predict student grades. Diagnostics included the Mean-F1 and the AUC value.
 
 # Methodology 
 
@@ -427,7 +445,7 @@ meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
 ```
 ## Random Forest
 
-Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25 percent. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of  the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7 percent. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models. 
+Two random forest models were analyzed in this study. One model utilized complete observations only ("complete observations RF"), while the other model imputed missing values using kNN through the VIM library ("imputed RF"). When using only complete observations, the dataset dropped to approximately 3,000 observations. The complete observations RF yielded a relatively high OOB error of 56.25 percent within the training partition. We wanted to determine whether the high OOB error could be attributed to the relatively small number of observations. We acknowledge that there are limitations to imputation, particularly in dummy variables. Moreover, some of the variables (e.g. hurt self and drug use) exhibit a high degree of missingness. After imputing missing values, there were roughly 7,000 complete observations. We did not impute missing values in the dependent variable or demographic characteristics. Our imputed RF still yielded a high OOB error of 56.7 percent within the training partition. While both models have low overall predictability power, age, gender and marijuana use had the greatest variable importance in both models. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Create new dataframe with recoded variables and dependent variable
@@ -672,7 +690,7 @@ fit2.1$importance
 
 ## Ordered Logistic Regression
 
-Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana have a negative, statistically significant association with grades. In contrast, in many of the models, white, asian, and female have a positive, statistically significant association with grades.
+Since the dependent variable had ranked categorical responses, we conducted an ordered logistic regression. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana have a negative, statistically significant association with grades. In contrast, in many of the models, white, asian, and female have a positive, statistically significant association with grades.
 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
@@ -728,7 +746,7 @@ pR2(m4)
 
 # Conclusion
 
-Overall, random forest is preferred, however, there is low predictability power. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers. 
+Overall, random forest is preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. While limitations do exist, more research should be conducted in this area to better inform schools and policymakers. 
 
 
 # Application in the Real World 
