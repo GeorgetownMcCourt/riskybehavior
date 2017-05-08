@@ -34,6 +34,12 @@ Conducted some exploratory analysis of the data (e.g. describing the data, summa
 
 *We used the following techinques: Ordered Logistic Regression, Decision Trees, and Random Forest. 
 
+## Results 
+
+Gender and marijuana use were identified as important variables across all three methods. Cigarette use, sexual activity, alcohol consumption, pregancy, age and race were also identified as important variables in more than one method. However, given the limitations of our methods, we remain cautious in further interpreting these results.
+
+Overall, random forest is the preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. Given the limitations of this analysis, more research should be conducted in this area to better inform schools and policymakers.
+
 ## Contributors 
 Janani Shankaran,
 Andrea Chamorro, and
