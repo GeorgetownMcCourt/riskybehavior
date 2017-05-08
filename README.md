@@ -2,20 +2,19 @@
 Can Risky Behaviors Predict Academic Achievement?
 ## Synopsis/Overview
 
-The purpose of our project is to address how risky behaviors, such as illegal drug use, alcohol consumption, and sexual intercourse, impact the grades of students in Somerville High School in Massachusetts. More specifically, how do certain behaviors impact the grades of students? However, we recognize that it may be difficult to ascertain causal impacts. In addition, we would also be cautious in how we approached policy recommendations. 
+For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Centers for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health-risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation.
 
-Much of motivation for this project lies in the need for educational reform. We wish to provide insight on how schools can improve to ensure better student outcomes. For example, in order to address tobacco consumption, schools may to wish to increase funding in drug prevention programs. 
+The objective of this study is to build upon the CDC research in order to better understand how certain behaviors may impact or be associated with student grades. These results can encourage schools to promote health and safety among students, which would in turn enable students to establish lifelong healthy behaviors.
 
 ## Usage
 
+First, we recoded categorical variables within the dataset into dummy variables. The survey asks students how many times they have engaged in a risky behaviors over the past 30 days.  For example, the variable "cig_30" examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, we recoded cig_30 as a binary variable, in that respondents who have never smoked a cigarette would be coded as a 0, while who respondents have smoked a cigarette at least once would be coded as a 1. 
 
-First, the dataset is recoded from categorical variables into dummy variables. The survey asks students how many times they have engaged in a risky behaviors in the past 30 days.  For example, the variable, cig_30, examines how many days a student has smoked a cigarette in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days.  In this example, recode cig_30 as a binary variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1. 
+Our dependent variable, skl_gra, which examines the grades of students, was also recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
 
-In addition, our dependent variable, skl_gra, which examines the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to “mostly A’s”, while a 1 corresponds to “mostly E’s/F’s.”
+Second, we divided the data into a 70-15-15 partition. We employed methodologies such as Decision Trees, Random Forest, and Ordered Logistic Regression to assess whether any of the independent variables can predict student grades. Diagnostics include the Mean-F1 and the AUC value. 
 
-Second, the dataset is divided into a 70-15-15 partition. Decision Trees, Random Forest, and Ordered Logistic Regression will be considered. The Mean-F1 value, and the AUC value will be taken into consideration, when determining the optimal technique. The optimal technique will help us to most accurately predict students’ actual grades.
-
-After determining which technique is optimal, we will predict the grades for all the students in the dataset. The optimal model will tell us the extent to which various risky behaviors may play a role in students’ academic outcomes.
+The optimal method will tell us the extent to which various risky behaviors may play a role in students’ academic outcomes.
                 
 ## Data
 
@@ -32,7 +31,7 @@ Conducted some exploratory analysis of the data (e.g. describing the data, summa
 
 *We  partitioned the data: 70 percent of the dataset is in training set, 15 percent of the dataset is in the test set, and 15 percent of the dataset is in the validation set.
 
-*We used the following techinques: Ordered Logistic Regression, Decision Trees, and Random Forest. 
+*We used the following techniques: Ordered Logistic Regression, Decision Trees, and Random Forest. 
 
 ## Results 
 
