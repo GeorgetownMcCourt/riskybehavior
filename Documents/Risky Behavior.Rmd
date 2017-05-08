@@ -86,7 +86,7 @@ Among the risky behaviors, students are most likely to have engaged in sexual ac
 ```
 # Research Strategy 
 
-The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
+The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
 
 Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never had tobacco were coded as a 0, while respondents who had tobacco at least once were coded as a 1.
 
