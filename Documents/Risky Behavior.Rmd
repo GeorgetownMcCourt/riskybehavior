@@ -16,11 +16,11 @@ subtitle: How do risky behaviors predict student academic achievement?
 
 For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Centers for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health-risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation. 
 
-The objective of this study is to build upon the CDC research in order to better understand how certain behaviors may impact student grades. These results can encourage schools to promote health and safety among students, which would in turn enable students to establish lifelong healthy behaviors. 
+The objective of this study is to build upon the CDC research in order to better understand how certain behaviors may impact or be associated with student grades. These results can encourage schools to promote health and safety among students, which would in turn enable students to establish lifelong healthy behaviors. 
 
 # Data
 
-The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
+The City of Somerville's Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at the school were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: http://bit.ly/2nRvJYa. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ##Download data
@@ -88,7 +88,7 @@ Among the risky behaviors, students are most likely to have engaged in sexual ac
 
 The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
 
-Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never smoked a cigarette were coded as a 0, while respondents who have smoked a cigarette at least once were coded as a 1.
+Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never had tobacco were coded as a 0, while respondents who had tobacco at least once were coded as a 1.
 
 The race variable was also recoded into dummy variables. For example, if the respondent identified as Asian, we coded Asian = 1 and likewise, if the respondent did not identify as Asian, we recoded as Asian = 0. 
 
@@ -178,7 +178,7 @@ df$tobacco[df$chew_30 =="10 to 19 days"] <- 1
 df$tobacco[df$chew_30 =="20 to 29 days"] <- 1
 df$tobacco[df$chew_30 =="All 30 days"] <- 1
 
-##Ectasy 
+##Ecstasy 
 df$ecstasy[df$x_30 =="0 times"] <- 0
 df$ecstasy[df$x_30 =="1 or 2 times"] <- 1
 df$ecstasy[df$x_30 =="3 to 9 times"] <- 1
@@ -300,7 +300,7 @@ df$meth[df$meth_30 =="20 to 39 times"] <- 1
 df$meth[df$meth_30 =="40 or more times"] <- 1
 ```
 
-Third, the dataset is divided into a 70-15-15 partition. 
+Third, the dataset was divided into a 70-15-15 partition. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ###New data frame
@@ -339,7 +339,7 @@ We employed methodologies such as Decision Trees, Random Forest, and Ordered Log
 
 ## Decision tree
 
-For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values.  Also, we conducted a variable of importance test on all of our variables of interest. We found that sex, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We made sure to remove any variables that would be result in multicollinearity, but the Mean-F1 score was still 1. Just looking at the predicted values shows this is clearly not accurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models. 
+For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values. Also, we conducted a variable of importance test on all of our variables of interest. We found that gender, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We removed any variables that would result in multicollinearity, but the Mean-F1 score was still 1. By just examining the predicted values, this result was clearly inaccurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Train
@@ -430,7 +430,7 @@ meanf1(is.nan(input.testdef$d), is.nan(input.testdef$m))
 ```
 ## Random Forest
 
-Two random forest models were analyzed in this study. One model utilized complete observations only ("complete observations RF"), while the other model imputed missing values using kNN through the VIM library ("imputed RF"). When using only complete observations, the dataset dropped to approximately 3,000 observations. The complete observations RF yielded a relatively high OOB error of 56.25 percent within the training partition. We wanted to determine whether the high OOB error could be attributed to the relatively small number of observations. We acknowledge that there are limitations to imputation, particularly in dummy variables. Moreover, some of the variables (e.g. hurt self and drug use) exhibit a high degree of missingness. After imputing missing values, there were roughly 7,000 complete observations. We did not impute missing values in the dependent variable or demographic characteristics. Our imputed RF still yielded a high OOB error of 56.7 percent within the training partition. While both models have low overall predictability power, age, gender and marijuana use had the greatest variable importance in both models. 
+Two random forest models were analyzed in this study. One model utilized complete observations only ("complete observations RF"), while the other model imputed missing values using kNN through the VIM library ("imputed RF"). When using only complete observations, the dataset dropped to approximately 3,000 observations. The complete observations RF yielded a relatively high OOB error of 56.25 percent within the training partition. We wanted to determine whether the high OOB error could be attributed to the relatively small number of observations. We acknowledge that there are limitations to imputation, particularly in dummy variables. Moreover, some of the variables (e.g. hurt self and drug use) exhibit a high degree of missingness. After imputing missing values, there were roughly 7,000 complete observations. We did not impute missing values in the dependent variable or across any demographic variables. Our imputed RF still yielded a high OOB error of 56.7 percent within the training partition. While both models have low overall predictability power, age, gender and marijuana use had the greatest variable importance in both models. 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 #Create new dataframe with recoded variables and dependent variable
@@ -675,7 +675,7 @@ fit2.1$importance
 
 ## Ordered Logistic Regression
 
-Since the dependent variable had ranked categorical responses, we conducted an ordered logistic regression. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana have a negative, statistically significant association with grades. In contrast, in many of the models, white, asian, and female have a positive, statistically significant association with grades.
+Since the dependent variable had ranked categorical responses, we conducted an ordered logistic regression. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana use have a negative and statistically significant association with grades. In contrast, in many of the models, white, Asian, and female have a positive, statistically significant association with grades.
 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
@@ -731,7 +731,9 @@ pR2(m4)
 
 # Conclusion
 
-Overall, random forest is preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. While limitations do exist, more research should be conducted in this area to better inform schools and policymakers. 
+Gender and marijuana use were identified as important variables across all three methods. Cigarette use, sexual activity, alcohol consumption, pregancy, age and race were also identified as important variables in more than one method. However, given the limitations of our methods, we remain cautious in further interpreting these results.
+
+Overall, random forest is the preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. While limitations do exist, more research should be conducted in this area to better inform schools and policymakers. 
 
 
 # Application in the Real World 
