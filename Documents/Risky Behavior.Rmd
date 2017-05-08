@@ -736,4 +736,4 @@ Overall, random forest is preferred method; however, there is low predictability
 
 # Application in the Real World 
 
-The next step would be to ideally create the basis of a scoring engine. This engine could take into account of other academic, behavioral, and environmental factors which were not described in this study. Such an engine could help to support the mitigation of risky behaviors. 
+The next step would be to ideally create the basis of a scoring engine. This engine could take into account other academic, behavioral, and environmental factors which were not described in this study. Such an engine could help to support the mitigation of risky behaviors among students. 
