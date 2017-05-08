@@ -142,13 +142,15 @@ $(document).ready(function () {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>For several decades, the academic performance of students has been a major concern. Many studies have discovered that academic success has been strongly linked with health-related factors. According to the Centers for Disease Control and the 2009 National Youth Risk Behavior Survey (YRBS), there is a negative association between health-risk behaviors and academic achievement among high school students. In other words, students with higher grades are less likely to engage in health-risk behaviors than students with lower grades. Similarly, students who do not engage in health-risk behaviors are more likely to receive higher grades than students who engage in health-risk behaviors. It should be noted these associations do not prove causation.</p>
-<p>The objective of this study is to build upon the CDC research, in order to better understand how certain behaviors can impact the grades of students. These results can encourage schools to promote health and safety among students, which would help them to establish lifelong healthy behaviors.</p>
+<p>The objective of this study is to build upon the CDC research in order to better understand how certain behaviors may impact or be associated with student grades. These results can encourage schools to promote health and safety among students, which would in turn enable students to establish lifelong healthy behaviors.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p>The City of Somerville’s Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at Somerville High School were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: <a href="http://bit.ly/2nRvJYa" class="uri">http://bit.ly/2nRvJYa</a>.</p>
-<pre class="r"><code>setwd(&quot;C:/Users/anchamorro/Desktop/_MPP/Intro to Data Science/Class project&quot;)
-df&lt;- read.csv(&quot;Somerville_High_School_YRBS_Raw_Data_2002-2014.csv&quot;)
+<p>The City of Somerville’s Youth Risk Behavior Survey is an annual student survey conducted at Somerville High School. Students at the school were surveyed every two years, from 2002 to 2014. The dataset includes a total of 8,003 student survey responses. The dataset can be accessed here: <a href="http://bit.ly/2nRvJYa" class="uri">http://bit.ly/2nRvJYa</a>.</p>
+<pre class="r"><code>##Download data
+temp &lt;- tempfile()
+download.file(&quot;https://raw.githubusercontent.com/GeorgetownMcCourt/riskybehavior/master/Data/Somerville_High_School_YRBS_Raw_Data_2002-2014.csv&quot;, temp, mode=&quot;wb&quot;)
+df &lt;- read.csv(temp)
 
 ###Libraries###
 library(plyr)
@@ -183,14 +185,31 @@ meanf1 &lt;- function(actual, predicted){
 <div id="descriptive-statistics" class="section level1">
 <h1>Descriptive statistics</h1>
 <p>In terms of demographic characteristics, roughly 40.1 percent of students are White, 15.0 percent are Black, 24.4 percent are Hispanic, 8.7 percent are Asian, and 11.8 percent identify as Other race. In addition, 219 observations exhibit missingness in race. Approximately 52.4 percent of the sample is female, while the average age of students is 16.25.</p>
-<p>Among the risky behaviors, students are most likely to have engaged in sexual activity or consumed alcohol. Some of the variables exhibit considerable missingness, including variables related to hurting oneself, gang affiliation, altercations, and drug use.</p>
+<p>Among the risky behaviors, students are most likely to have engaged in sexual activity or consumed alcohol. Some of the variables exhibit considerable missingness, including variables related to hurting oneself, gang affiliation, altercations, and drug use. The variables are summarized below. Among students who responded yes or no to each question:</p>
+<pre class="r"><code># 4.24% are in a gang. This variable has 1,705 missing observations. 
+# 10.79% engaged in an in-school altercation. This variable has 1,507 missing observations.
+# 19.77% engaged in an out-of-school altercation. This variable has 1,513 missing observations.
+# 4.86% carried a weapon in school. This variable has 1,501 missing observations.
+# 10.82% carried a weapon outside of school. This variable has 1,506 missing observations.
+# 13.70% injured themselves on purpose. This variable has 3,882 missing observations.
+# 14.64% smoked cigarettes. This variable has 102 missing observations.
+# 2.02% used other tobacco. This variable has 150 missing observations.
+# 2.31% used ecstasy. This variable has 1,516 missing observations.
+# 1.59% used oxycontin. This variable has 1,535 missing observations.
+# 2.19% engaged in other drug use. This variable has 1,535 missing observations.
+# 47.21% engaged in sexual activity. This variable has 307 missing observations.
+# 5.24% have been pregnant or gotten someone pregnant. This variable has 425 missing observations.
+# 35.6% have consumed alcohol. This variable has 98 missing observations.
+# 0.49% have used heroin. This variable has 1,510 missing observations.
+# 21.1% have used marijuana. This variable has 127 missing observations.
+# 0.80% have used methamphetamines. This variable has 1,513 missing observations.</code></pre>
 </div>
 <div id="research-strategy" class="section level1">
 <h1>Research Strategy</h1>
-<p>First, the original dataset comes with 219 variables. Based on the CDC report, we have narrowed it down to 29 variables, which focuses specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use.</p>
-<p>Second, many of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, examines how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. In this case, chew_30 would be recoded as a dummy variable, in that respondents who have never smoked a cigarette, would be coded as a 0, while who respondents have smoked a cigarette at least once, would be coded as a 1.</p>
-<p>In addition, the race variables were also recoded into dummy variables. For example, if the respondent identified as Asian, it would be coded as a 1 and likewise, if the respondent did not identify as Asian, it would be coded as 0.</p>
-<p>Furthermore, the dependent variable, skl_gra, which provides the grades of students, is also recoded. The variable is recoded on a scale from 1-5, in which a 5 corresponds to âmostly Aâsâ, while a 1 corresponds to âmostly Eâs/Fâs.â</p>
+<p>The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use.</p>
+<p>Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never had tobacco were coded as a 0, while respondents who had tobacco at least once were coded as a 1.</p>
+<p>The race variable was also recoded into dummy variables. For example, if the respondent identified as Asian, we coded Asian = 1 and likewise, if the respondent did not identify as Asian, we recoded as Asian = 0.</p>
+<p>The dependent variable, skl_gra, was recoded on a scale from 1-5, in which a 5 corresponds to âmostly Aâsâ, while a 1 corresponds to âmostly Eâs/Fâs.â</p>
 <pre class="r"><code>##Grades
 df$grades[df$skl_gra ==&quot;Mostly A's&quot;] &lt;- 5
 df$grades[df$skl_gra ==&quot;Mostly B's&quot;] &lt;- 4
@@ -274,7 +293,7 @@ df$tobacco[df$chew_30 ==&quot;10 to 19 days&quot;] &lt;- 1
 df$tobacco[df$chew_30 ==&quot;20 to 29 days&quot;] &lt;- 1
 df$tobacco[df$chew_30 ==&quot;All 30 days&quot;] &lt;- 1
 
-##Ectasy 
+##Ecstasy 
 df$ecstasy[df$x_30 ==&quot;0 times&quot;] &lt;- 0
 df$ecstasy[df$x_30 ==&quot;1 or 2 times&quot;] &lt;- 1
 df$ecstasy[df$x_30 ==&quot;3 to 9 times&quot;] &lt;- 1
@@ -387,23 +406,14 @@ df$heroin[df$her_30 ==&quot;10 to 19 times&quot;] &lt;- 1
 df$heroin[df$her_30 ==&quot;20 to 39 times&quot;] &lt;- 1
 df$heroin[df$her_30 ==&quot;40 or more times&quot;] &lt;- 1
 
-
 ##Meth
-describe(df$meth_30)</code></pre>
-<pre><code>## df$meth_30 
-##        n  missing distinct 
-##     8003        0        7 
-## 
-## (1513, 0.189), 0 times (6438, 0.804), 1 or 2 times (28, 0.003), 10 to 19
-## times (5, 0.001), 20 to 39 times (7, 0.001), 3 to 9 times (10, 0.001), 40
-## or more times (2, 0.000)</code></pre>
-<pre class="r"><code>df$meth[df$meth_30 ==&quot;0 times&quot;] &lt;- 0
+df$meth[df$meth_30 ==&quot;0 times&quot;] &lt;- 0
 df$meth[df$meth_30 ==&quot;1 or 2 times&quot;] &lt;- 1
 df$meth[df$meth_30 ==&quot;3 to 9 times&quot;] &lt;- 1
 df$meth[df$meth_30 ==&quot;10 to 19 times&quot;] &lt;- 1
 df$meth[df$meth_30 ==&quot;20 to 39 times&quot;] &lt;- 1
 df$meth[df$meth_30 ==&quot;40 or more times&quot;] &lt;- 1</code></pre>
-<p>Third, the dataset is divided into a 70-15-15 partition.</p>
+<p>Third, the dataset was divided into a 70-15-15 partition.</p>
 <pre class="r"><code>###New data frame
 df2 &lt;- df[c(1:3, 12, 194:219)]
 
@@ -495,13 +505,13 @@ rand &lt;- runif(nrow(df2))
 train &lt;- df2[rand &gt; 0.3,]
 validate &lt;- df2[rand &gt; 0.15 &amp; rand &lt;= 0.3,]
 test &lt;- df2[rand &lt;= 0.15,]</code></pre>
-<p>Finally, Decision Trees, Random Forest, and Ordered Logistic Regression will be used in predicting the actual grades of students. The Mean-F1 and the AUC value will be taken into consideration, when determining the optimal technique.</p>
+<p>We employed methodologies such as Decision Trees, Random Forest, and Ordered Logistic Regression to assess whether any of the independent variables can predict student grades. Diagnostics included the Mean-F1 and the AUC value.</p>
 </div>
 <div id="methodology" class="section level1">
 <h1>Methodology</h1>
 <div id="decision-tree" class="section level2">
 <h2>Decision tree</h2>
-<p>For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values. Also, we conducted a variable of importance test on all of our variables of interest. We found that sex, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We made sure to remove any variables that would be result in multicollinearity, but the Mean-F1 score was still 1. Just looking at the predicted values shows this is clearly not accurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models.</p>
+<p>For our decision tree analysis, we tested attribute values for each input feature using the information gain entropy measure. We were able to calculate results for the default, zero, and the optimal CP-values. Also, we conducted a variable of importance test on all of our variables of interest. We found that gender, alcohol, marijuana, cigarette, pregnancy, and chewing tobacco were some of the variables that were most important. Unfortunately, the decision tree results yielded a Mean-F1 score of 1 for all measures in our sample. We removed any variables that would result in multicollinearity, but the Mean-F1 score was still 1. By just examining the predicted values, this result was clearly inaccurate. Therefore, we could not determine which measure produced the most accurate results. In general, decision trees tend to overfit predictive models.</p>
 <pre class="r"><code>#Train
 fittingall &lt;- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself 
 + schoolaltercation + schoolweapon + outsidealtercation + outsideweapon + schoolweapon 
@@ -509,8 +519,10 @@ fittingall &lt;- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself
 + white + asian + hispanic + otherrace + female + alcohol + marijuana 
 + heroin + meth, method = &quot;class&quot;, data = dftrain)
 fittingall$variable.importance</code></pre>
-<pre><code>##    sexual   alcohol    female marijuana      age2    ciguse pregnancy 
-## 59.080049 15.523193 15.400005 13.199821 11.821116  9.242428  5.923324</code></pre>
+<pre><code>##     sexual    alcohol  marijuana       age2     female     ciguse 
+## 60.2312039 14.5078639 13.2246774 11.6930401 10.7346318  8.7076674 
+##  pregnancy      white 
+##  5.7874331  0.1597975</code></pre>
 <pre class="r"><code>#Predict values for train 
 predict.opt.train &lt;- predict(fit.opt, dftrain, type='class')
 predict.0.train &lt;- predict(fit.0, dftrain, type='class')
@@ -576,7 +588,7 @@ meanf1(is.nan(input.val$d), is.nan(input.val$m))</code></pre>
 </div>
 <div id="random-forest" class="section level2">
 <h2>Random Forest</h2>
-<p>Two random forest models were analyzed in this study. One of the model utilized complete observations and the other model imputed missing values using KNN through the VIM library. When using only complete observations, the data dropped to approximately 3,000 observations. This yielded a relatively high OOB error of 56.25 percent. In contrast, when the model imputed missing values, there were roughly 7,000 observations. It should be noted that the missing values of the dependent variable or the demographic factors were not imputed. Similarly, the OOB error was still high, at 56.7 percent. While both models had low overall predictability power, it was discovered that age has the greatest importance in both models. Furthermore, gender and marijuana were relatively important in both models.</p>
+<p>Two random forest models were analyzed in this study. One model utilized complete observations only (“complete observations RF”), while the other model imputed missing values using kNN through the VIM library (“imputed RF”). When using only complete observations, the dataset dropped to approximately 3,000 observations. The complete observations RF yielded a relatively high OOB error of 56.25 percent within the training partition. We wanted to determine whether the high OOB error could be attributed to the relatively small number of observations. We acknowledge that there are limitations to imputation, particularly in dummy variables. Moreover, some of the variables (e.g. hurt self and drug use) exhibit a high degree of missingness. After imputing missing values, there were roughly 7,000 complete observations. We did not impute missing values in the dependent variable or across any demographic variables. Our imputed RF still yielded a high OOB error of 56.7 percent within the training partition. While both models have low overall predictability power, age, gender and marijuana use had the greatest variable importance in both models.</p>
 <pre class="r"><code>#Create new dataframe with recoded variables and dependent variable
 df2 &lt;- df[c(1:3, 12, 194:219)]
 
@@ -1182,7 +1194,7 @@ fit2.1$importance</code></pre>
 </div>
 <div id="ordered-logistic-regression" class="section level2">
 <h2>Ordered Logistic Regression</h2>
-<p>Since the dependent variable had ranked categorical responses, an ordered logistic regression was conducted. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. After analyzing several models, it was determined that Model 1 was optimal. Unfortunately, the model had a low Mean-F1 score of 0.742487. However, the McFadden’s pseudo R-squared value was 0.3381522. A value between 0.2 and 0.4 indicates that the model is a good fit. It should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, cigarette use, and marijuana have a negative, statistically significant association with grades.</p>
+<p>Since the dependent variable had ranked categorical responses, we conducted an ordered logistic regression. When analyzing the different models, the Mean-F1 score and the pseudo R-squared value were taken into consideration. Unfortunately, similarly to the decision trees, the models appear to be overfitting. However, similarly, it should be noted that in many of the models, pregnancy, sexual activity, in-school altercation, outside altercation, cigarette use, marijuana use have a negative and statistically significant association with grades. In contrast, in many of the models, white, Asian, and female have a positive, statistically significant association with grades.</p>
 <pre class="r"><code>##Model 1
 m1&lt;- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
           + outsideweapon +  oxy  + +alcohol + ciguse + marijuana + age2 + white + black 
@@ -1231,12 +1243,7 @@ meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
 ## -2.699917e+03 -2.902245e+03  4.046575e+02  6.971455e-02  1.669733e-01 
 ##          r2CU 
 ##  1.800763e-01</code></pre>
-<pre class="r"><code>##mean-f1: 0.742487
-##Psuedo R-squared values:
-# McFadden: 0.3381522    
-# r2ML:  0.7145596        
-# r2CU: 0.7325338 
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant. 
+<pre class="r"><code>##Sexual, pregnancy, school altercation, outside altercation, outside weapon, ciguse, marijuana, white, asian, and female are statistically significant. 
 
 ##Model 2
 m2&lt;- polr(factor(grades) ~ sexual + pregnancy +schoolaltercation + outsidealtercation 
@@ -1282,17 +1289,12 @@ id &lt;- test$id
 myPredictions&lt;- cbind.data.frame(id, grades)
 meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
 <pre><code>## [1] 1</code></pre>
-<pre class="r"><code>pR2(m2)</code></pre>
+<pre class="r"><code>pR2(m2)  </code></pre>
 <pre><code>##           llh       llhNull            G2      McFadden          r2ML 
 ## -2.699852e+03 -2.902245e+03  4.047868e+02  6.973683e-02  1.670219e-01 
 ##          r2CU 
 ##  1.801288e-01</code></pre>
-<pre class="r"><code>##mean-f1:0.551699
-##Psuedo R-squared values:
-# McFadden: 0.5891756     
-# r2ML: 0.9693411       
-# r2CU: 0.9719647  
-##Sexual, pregnancy, school altercation, ciguse and marijuana are statistically significant.
+<pre class="r"><code>##Sexual, pregnancy, school altercation, outside altercation, ciguse, and marijuana, white, asian and female are statistically significant.
 
 
 ##Model 3
@@ -1345,12 +1347,7 @@ meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
 ## -2.699763e+03 -2.902245e+03  4.049645e+02  6.976744e-02  1.670888e-01 
 ##          r2CU 
 ##  1.802009e-01</code></pre>
-<pre class="r"><code>##mean-f1: 0.7382061
-##Psuedo R-squared values:
-# McFadden: 0.3406277    
-# r2ML: 0.7186248        
-# r2CU: 0.7364225  
-##Sexual, pregnancy, school altercation, outside altercation, ciguse and marijuana are statistically significant.
+<pre class="r"><code>##Sexual, pregnancy, school altercation, outside altercation, ciguse, marijuana, white, asian, and female are statistically significant.
 
 ##Model 4
 m4&lt;- polr(factor(grades) ~ sexual +pregnancy + ingang + schoolaltercation + outsidealtercation + schoolweapon
@@ -1403,21 +1400,17 @@ meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
 ## -2699.5547762 -2902.2452545   405.3809565     0.0698392     0.1672454 
 ##          r2CU 
 ##     0.1803697</code></pre>
-<pre class="r"><code>##mean-f1: 0.7313642
-##Psuedo R-squared values:
-# McFadden: 0.3537376    
-# r2ML: 0.7393928         
-# r2CU: 0.7562858 
-##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, and marijuana are statistically signficant.</code></pre>
+<pre class="r"><code>##Sexual, pregnancy, school altercation, outside altercation, alcohol, ciguse, marijuana, white, asian, female are statistically signficant.</code></pre>
 </div>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>Overall, random forest and ordered logistic regression are preferred, however, there is low predictability power. This may be attributed to the limitations of the data. It is more than likely that there were other factors which are stronger predictors of grades, but were not captured in the model, such as household type, family stability, and the income of parents. Furthermore, the self-reported nature of the data may have decreased the strength of predictability. While limitations do exist, more research should be conducted in this area, which can better inform schools and policymakers.</p>
+<p>Gender and marijuana use were identified as important variables across all three methods. Cigarette use, sexual activity, alcohol consumption, pregancy, age and race were also identified as important variables in more than one method. However, given the limitations of our methods, we remain cautious in further interpreting these results.</p>
+<p>Overall, random forest is the preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. While limitations do exist, more research should be conducted in this area to better inform schools and policymakers.</p>
 </div>
 <div id="application-in-the-real-world" class="section level1">
 <h1>Application in the Real World</h1>
-<p>The next step would be to ideally create the basis of a scoring engine. This engine could take into account of other academic, behavioral, and environmental factors which were not described in this study. Such an engine could help to support the mitigation of risky behaviors.</p>
+<p>The next step would be to ideally create the basis of a scoring engine. This engine could take into account other academic, behavioral, and environmental factors which were not described in this study. Such an engine could help to support the mitigation of risky behaviors among students.</p>
 </div>
 
 
