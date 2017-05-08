@@ -65,40 +65,25 @@ In terms of demographic characteristics, roughly 40.1 percent of students are Wh
 
 Among the risky behaviors, students are most likely to have engaged in sexual activity or consumed alcohol. Some of the variables exhibit considerable missingness, including variables related to hurting oneself, gang affiliation, altercations, and drug use. The variables are summarized below. Among students who responded yes or no to each question:
 
-4.24% are in a gang. This variable has 1,705 missing observations. 
-
-10.79% engaged in an in-school altercation. This variable has 1,507 missing observations.
-
-19.77% engaged in an out-of-school altercation. This variable has 1,513 missing observations.
-
-4.86% carried a weapon in school. This variable has 1,501 missing observations.
-
-10.82% carried a weapon outside of school. This variable has 1,506 missing observations.
-
-13.70% injured themselves on purpose. This variable has 3,882 missing observations.
-
-14.64% smoked cigarettes. This variable has 102 missing observations.
-
-2.02% used other tobacco. This variable has 150 missing observations.
-
-2.31% used ecstasy. This variable has 1,516 missing observations.
-
-1.59% used oxycontin. This variable has 1,535 missing observations.
-
-2.19% engaged in other drug use. This variable has 1,535 missing observations.
-
-47.21% engaged in sexual activity. This variable has 307 missing observations.
-
-5.24% have been pregnant or gotten someone pregnant. This variable has 425 missing observations.
-
-35.6% have consumed alcohol. This variable has 98 missing observations.
-
-0.49% have used heroin. This variable has 1,510 missing observations.
-
-21.1% have used marijuana. This variable has 127 missing observations.
-
-0.80% have used methamphetamines. This variable has 1,513 missing observations.
-
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# 4.24% are in a gang. This variable has 1,705 missing observations. 
+# 10.79% engaged in an in-school altercation. This variable has 1,507 missing observations.
+# 19.77% engaged in an out-of-school altercation. This variable has 1,513 missing observations.
+# 4.86% carried a weapon in school. This variable has 1,501 missing observations.
+# 10.82% carried a weapon outside of school. This variable has 1,506 missing observations.
+# 13.70% injured themselves on purpose. This variable has 3,882 missing observations.
+# 14.64% smoked cigarettes. This variable has 102 missing observations.
+# 2.02% used other tobacco. This variable has 150 missing observations.
+# 2.31% used ecstasy. This variable has 1,516 missing observations.
+# 1.59% used oxycontin. This variable has 1,535 missing observations.
+# 2.19% engaged in other drug use. This variable has 1,535 missing observations.
+# 47.21% engaged in sexual activity. This variable has 307 missing observations.
+# 5.24% have been pregnant or gotten someone pregnant. This variable has 425 missing observations.
+# 35.6% have consumed alcohol. This variable has 98 missing observations.
+# 0.49% have used heroin. This variable has 1,510 missing observations.
+# 21.1% have used marijuana. This variable has 127 missing observations.
+# 0.80% have used methamphetamines. This variable has 1,513 missing observations.
+```
 # Research Strategy 
 
 The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use. 
