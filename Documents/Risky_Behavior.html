@@ -206,7 +206,7 @@ meanf1 &lt;- function(actual, predicted){
 </div>
 <div id="research-strategy" class="section level1">
 <h1>Research Strategy</h1>
-<p>The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to 29 variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use.</p>
+<p>The original dataset includes 193 variables. Based on the CDC report, we narrowed our research to variables that focus specifically on risky behaviors, such as gang affiliation, gun possession, and drug and alcohol use.</p>
 <p>Most of the categorical variables were recoded into dummy variables. For example, the variable, chew_30, tells us how many days a student has chewed tobacco in the past 30 days. Respondents had the option to choose 0 days, 1 or 2 days, 3 to 5 days, 6 to 9 days, 10 to 19 days, 20 to 29 days or All 30 days. We recoded chew_30 as a dummy variable: respondents who have never had tobacco were coded as a 0, while respondents who had tobacco at least once were coded as a 1.</p>
 <p>The race variable was also recoded into dummy variables. For example, if the respondent identified as Asian, we coded Asian = 1 and likewise, if the respondent did not identify as Asian, we recoded as Asian = 0.</p>
 <p>The dependent variable, skl_gra, was recoded on a scale from 1-5, in which a 5 corresponds to âmostly Aâsâ, while a 1 corresponds to âmostly Eâs/Fâs.â</p>
@@ -519,10 +519,10 @@ fittingall &lt;- rpart(grades2 ~ ciguse + tobacco + ingang + hurtingself
 + white + asian + hispanic + otherrace + female + alcohol + marijuana 
 + heroin + meth, method = &quot;class&quot;, data = dftrain)
 fittingall$variable.importance</code></pre>
-<pre><code>##     sexual    alcohol  marijuana       age2     female     ciguse 
-## 60.2312039 14.5078639 13.2246774 11.6930401 10.7346318  8.7076674 
+<pre><code>##     sexual    alcohol  marijuana     female       age2     ciguse 
+## 58.3185719 14.3334090 12.3894566 11.2658075 10.5232623  7.9979527 
 ##  pregnancy      white 
-##  5.7874331  0.1597975</code></pre>
+##  5.6763410  0.3053064</code></pre>
 <pre class="r"><code>#Predict values for train 
 predict.opt.train &lt;- predict(fit.opt, dftrain, type='class')
 predict.0.train &lt;- predict(fit.0, dftrain, type='class')
@@ -1406,7 +1406,7 @@ meanf1(is.na(test$grades), is.na(myPredictions$grades))</code></pre>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
 <p>Gender and marijuana use were identified as important variables across all three methods. Cigarette use, sexual activity, alcohol consumption, pregancy, age and race were also identified as important variables in more than one method. However, given the limitations of our methods, we remain cautious in further interpreting these results.</p>
-<p>Overall, random forest is the preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. While limitations do exist, more research should be conducted in this area to better inform schools and policymakers.</p>
+<p>Overall, random forest is the preferred method; however, there is low predictability power. This may be attributed to the limitations of the data. Other factors not contained within the YRBS dataset may better predict grades, such as household type, family stability, and the income of parents. Furthermore, issues associated with self-reported data, including missing data and measurement error, may diminish model predictability. Given the limitations of this analysis, more research should be conducted in this area to better inform schools and policymakers.</p>
 </div>
 <div id="application-in-the-real-world" class="section level1">
 <h1>Application in the Real World</h1>
